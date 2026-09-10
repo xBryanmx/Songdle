@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SoundSnap — Guess the song</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--surface:#111;--s2:#181818;--s3:#202020;
+  --border:#252525;--b2:#303030;
+  --green:#1db954;--text:#f0f0f0;--t2:#999;--t3:#555;
+  --red:#e74c3c;--yellow:#f39c12;--purple:#9b59b6;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+.shell{max-width:660px;margin:0 auto;padding:0 18px 40px}
+header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.5px}
+.logo span{color:var(--green)}
+.hstats{display:flex;gap:18px}
+.hstat{text-align:center}
+.hstat-n{font-size:18px;font-weight:600;font-family:'Space Grotesk',sans-serif}
+.hstat-l{font-size:10px;color:var(--t3);letter-spacing:.05em;margin-top:1px}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filter-row select{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer}
+.filter-row select:focus{outline:none;border-color:var(--green)}
+.diff-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.diff-pill{flex:1;min-width:70px;padding:7px 4px;border-radius:20px;border:1px solid var(--b2);background:transparent;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;text-align:center;color:var(--t3)}
+.diff-pill[data-d="easy"].active{background:#1db95420;border-color:#1db95460;color:var(--green)}
+.diff-pill[data-d="medium"].active{background:#f39c1220;border-color:#f39c1260;color:var(--yellow)}
+.diff-pill[data-d="hard"].active{background:#e74c3c20;border-color:#e74c3c60;color:var(--red)}
+.diff-pill[data-d="expert"].active{background:#9b59b620;border-color:#9b59b660;color:var(--purple)}
+.diff-pill[data-d="impossible"].active{background:#e74c3c30;border-color:#e74c3c80;color:#ff6b6b}
+.diff-hint{font-size:11px;color:var(--t3);margin-bottom:14px;padding:0 2px;min-height:16px}
+/* Hidden YouTube player */
+#yt-container{position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none}
+/* Player card */
+.player{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.clip-row{display:flex;gap:5px;margin-bottom:16px}
+.cp{flex:1;padding:6px 0;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);font-size:11px;font-family:'Inter',sans-serif;cursor:default;transition:all .15s;text-align:center}
+.cp.on{color:var(--t2);cursor:pointer}
+.cp.cur{background:var(--green);border-color:var(--green);color:#000;font-weight:600}
+.cp.done{border-color:var(--border);color:var(--t3);background:var(--s2)}
+.wf{display:flex;align-items:center;gap:2px;height:52px;margin-bottom:16px;cursor:pointer}
+.wb{flex:1;border-radius:2px;background:var(--s3);transition:background .04s}
+.wb.p{background:#1db95455}
+.wb.a{background:var(--green)}
+.play-row{display:flex;align-items:center;gap:14px}
+.pbtn{width:52px;height:52px;border-radius:50%;background:var(--green);border:none;color:#000;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s}
+.pbtn:hover{background:#1ed760;transform:scale(1.04)}
+.pbtn:active{transform:scale(.96)}
+.tinfo{display:flex;flex-direction:column;gap:2px}
+.tcur{font-size:20px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--green)}
+.ttot{font-size:11px;color:var(--t3)}
+.loading-txt{font-size:12px;color:var(--t3);margin-top:2px}
+.glist{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.gi{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;font-size:13px}
+.gi.wr{background:#e74c3c12;border:1px solid #e74c3c30;color:var(--red)}
+.gi.sk{background:var(--s2);border:1px solid var(--border);color:var(--t3)}
+.sw{position:relative;margin-bottom:9px}
+.si{width:100%;padding:11px 14px 11px 40px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .15s}
+.si:focus{outline:none;border-color:var(--green)}
+.sico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;pointer-events:none}
+.sdrop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--s2);border:1px solid var(--b2);border-radius:10px;overflow:hidden;z-index:20;max-height:210px;overflow-y:auto;box-shadow:0 8px 24px #0008}
+.sdi{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.sdi:last-child{border-bottom:none}
+.sdi:hover{background:var(--s3)}
+.sdi-t{font-size:13px;font-weight:500;color:var(--text)}
+.sdi-m{font-size:11px;color:var(--t3);margin-top:1px}
+.arow{display:flex;gap:8px}
+.bskip{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.bskip:hover{border-color:var(--t3);color:var(--text)}
+.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.bguess:hover{background:#1ed760}
+.rcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
+.rico{font-size:38px;margin-bottom:10px}
+.rsong{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;margin-bottom:3px}
+.rart{font-size:13px;color:var(--t2);margin-bottom:14px}
+.rbadges{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.rb{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid}
+.rb-g{background:#1db95415;border-color:#1db95445;color:var(--green)}
+.rb-r{background:#e74c3c15;border-color:#e74c3c45;color:var(--red)}
+.rb-n{background:var(--s2);border-color:var(--b2);color:var(--t2)}
+.ract{display:flex;gap:8px;justify-content:center}
+.byt{padding:9px 16px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:13px;text-decoration:none;font-family:'Inter',sans-serif;transition:all .15s}
+.byt:hover{border-color:var(--t3);color:var(--text)}
+.bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+.bnext:hover{background:#1ed760}
+</style>
+</head>
+<body>
+
+<!-- Hidden YouTube player container -->
+<div id="yt-container">
+  <div id="yt-player"></div>
+</div>
+
+<div class="shell">
+  <header>
+    <div class="logo">Sound<span>Snap</span></div>
+    <div class="hstats">
+      <div class="hstat"><div class="hstat-n" id="sc">0</div><div class="hstat-l">correct</div></div>
+      <div class="hstat"><div class="hstat-n" id="ss">0</div><div class="hstat-l">streak</div></div>
+      <div class="hstat"><div class="hstat-n" id="sp">0</div><div class="hstat-l">played</div></div>
+    </div>
+  </header>
+
+  <div class="filter-row">
+    <select id="sel-era">
+      <option value="any">All eras</option>
+      <option value="pre60">Classic (pre-1960s)</option>
+      <option value="60s">1960s</option>
+      <option value="70s">1970s</option>
+      <option value="80s">1980s</option>
+      <option value="90s">1990s</option>
+      <option value="2000s">2000s</option>
+      <option value="2010s">2010s</option>
+      <option value="2020s">2020s</option>
+    </select>
+    <select id="sel-genre">
+      <option value="any">All genres</option>
+      <option value="pop">Pop</option>
+      <option value="hiphop">Hip-hop / Rap</option>
+      <option value="rnb">R&amp;B / Soul</option>
+      <option value="rock">Rock</option>
+      <option value="alt">Alternative / Indie</option>
+      <option value="metal">Metal</option>
+      <option value="punk">Punk</option>
+      <option value="country">Country</option>
+      <option value="folk">Folk</option>
+      <option value="jazz">Jazz</option>
+      <option value="electronic">Electronic</option>
+      <option value="edm">EDM</option>
+      <option value="house">House / Techno</option>
+      <option value="disco">Disco / Funk</option>
+      <option value="reggae">Reggae</option>
+      <option value="latin">Latin</option>
+      <option value="kpop">K-pop</option>
+    </select>
+  </div>
+
+  <div class="diff-row" id="diff-row">
+    <button class="diff-pill active" data-d="easy">Easy</button>
+    <button class="diff-pill" data-d="medium">Medium</button>
+    <button class="diff-pill" data-d="hard">Hard</button>
+    <button class="diff-pill" data-d="expert">Expert</button>
+    <button class="diff-pill" data-d="impossible">Impossible</button>
+  </div>
+  <div class="diff-hint" id="diff-hint"></div>
+
+  <div class="player">
+    <div class="clip-row" id="clip-row"></div>
+    <div class="wf" id="wf"></div>
+    <div class="play-row">
+      <button class="pbtn" id="pbtn" aria-label="Play clip">&#9654;</button>
+      <div class="tinfo">
+        <div class="tcur" id="tcur">0.0s</div>
+        <div class="ttot" id="ttot">of 1s</div>
+        <div class="loading-txt" id="loading-txt">Loading song...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glist" id="glist"></div>
+
+  <div id="game-area">
+    <div class="sw">
+      <span class="sico">&#128269;</span>
+      <input class="si" id="ginput" placeholder="Name that track..." autocomplete="off"/>
+      <div class="sdrop" id="sdrop" style="display:none"></div>
+    </div>
+    <div class="arow">
+      <button class="bskip" id="bskip">Skip</button>
+      <button class="bguess" id="bguess">Guess</button>
+    </div>
+  </div>
+
+  <div id="result-area" style="display:none"></div>
+</div>
+
+<script>
+// ── Difficulty config ──────────────────────────────────────────
+const DIFFS = {
+  easy:       { clips:[1,2,5,8,12],      hint:'Clips: 1s→2s→5s→8s→12s  •  Most popular hits only' },
+  medium:     { clips:[1,2,5,8,12],      hint:'Clips: 1s→2s→5s→8s→12s  •  Mix of hits and deep cuts' },
+  hard:       { clips:[0.5,1,2,5,8],     hint:'Clips: 0.5s→1s→2s→5s→8s  •  Shorter clips, broader pool' },
+  expert:     { clips:[0.2,0.5,1,2,5],   hint:'Clips: 0.2s→0.5s→1s→2s→5s  •  Very short clips' },
+  impossible: { clips:[0.1,0.2,0.5,1,2], hint:'Clips: 0.1s→0.2s→0.5s→1s→2s  •  Good luck 💀' },
+};
+
+// ── Song database with YouTube IDs ────────────────────────────
+const DB = [
+  {t:"What a Wonderful World",a:"Louis Armstrong",y:1967,g:["jazz"],e:"pre60",pop:3,vid:"rBrd_3VMC3c"},
+  {t:"Hound Dog",a:"Elvis Presley",y:1956,g:["rock","pop"],e:"pre60",pop:4,vid:"pDiEJMbExAM"},
+  {t:"Johnny B. Goode",a:"Chuck Berry",y:1958,g:["rock"],e:"pre60",pop:3,vid:"ZpSB9_SQXdQ"},
+  {t:"Blue Suede Shoes",a:"Elvis Presley",y:1956,g:["rock","pop"],e:"pre60",pop:3,vid:"ycNGz4g7OJk"},
+  {t:"Rock Around the Clock",a:"Bill Haley",y:1954,g:["rock"],e:"pre60",pop:3,vid:"Trq6MExFMlo"},
+  {t:"Great Balls of Fire",a:"Jerry Lee Lewis",y:1957,g:["rock"],e:"pre60",pop:3,vid:"ZXiXpECBg5A"},
+  {t:"Peggy Sue",a:"Buddy Holly",y:1957,g:["rock"],e:"pre60",pop:2,vid:"IqRUPmyEJWk"},
+  {t:"La Bamba",a:"Ritchie Valens",y:1958,g:["rock","latin"],e:"pre60",pop:3,vid:"UMRhMah2pKo"},
+  {t:"Take Five",a:"Dave Brubeck",y:1959,g:["jazz"],e:"pre60",pop:2,vid:"vmDDOFXSgAs"},
+  {t:"Hey Jude",a:"The Beatles",y:1968,g:["rock","pop"],e:"60s",pop:5,vid:"A_MjCqQoLLA"},
+  {t:"Respect",a:"Aretha Franklin",y:1967,g:["rnb"],e:"60s",pop:5,vid:"6FOUqQt3Kg0"},
+  {t:"Purple Haze",a:"Jimi Hendrix",y:1967,g:["rock"],e:"60s",pop:5,vid:"cJunCsrhJjg"},
+  {t:"Good Vibrations",a:"The Beach Boys",y:1966,g:["pop","rock"],e:"60s",pop:4,vid:"Eab_beh07HU"},
+  {t:"Gimme Shelter",a:"The Rolling Stones",y:1969,g:["rock"],e:"60s",pop:4,vid:"R_SPNVdBmdM"},
+  {t:"Light My Fire",a:"The Doors",y:1967,g:["rock"],e:"60s",pop:4,vid:"t107TJ6PSUM"},
+  {t:"Paint It Black",a:"The Rolling Stones",y:1966,g:["rock"],e:"60s",pop:4,vid:"O4irXQhgMqg"},
+  {t:"Yesterday",a:"The Beatles",y:1965,g:["pop","rock"],e:"60s",pop:5,vid:"NrgmdOz227I"},
+  {t:"Suspicious Minds",a:"Elvis Presley",y:1969,g:["pop","rock"],e:"60s",pop:4,vid:"e7qQ6_RV4VQ"},
+  {t:"I Heard It Through the Grapevine",a:"Marvin Gaye",y:1968,g:["rnb"],e:"60s",pop:4,vid:"uf_9nPFUOfs"},
+  {t:"Fortunate Son",a:"Creedence Clearwater Revival",y:1969,g:["rock"],e:"60s",pop:4,vid:"ec0XKhAHR5I"},
+  {t:"California Dreamin",a:"The Mamas and The Papas",y:1965,g:["folk","pop"],e:"60s",pop:4,vid:"N-aK6JnyFmk"},
+  {t:"The Sound of Silence",a:"Simon and Garfunkel",y:1964,g:["folk","rock"],e:"60s",pop:4,vid:"4zLfCnGVeL4"},
+  {t:"Fly Me to the Moon",a:"Frank Sinatra",y:1964,g:["jazz","pop"],e:"60s",pop:4,vid:"5yf_d_5eAXE"},
+  {t:"My Generation",a:"The Who",y:1965,g:["rock","punk"],e:"60s",pop:3,vid:"594GgUMF7nQ"},
+  {t:"Bohemian Rhapsody",a:"Queen",y:1975,g:["rock"],e:"70s",pop:5,vid:"fJ9rUzIMcZQ"},
+  {t:"Hotel California",a:"Eagles",y:1977,g:["rock"],e:"70s",pop:5,vid:"BciS5krYL80"},
+  {t:"Superstition",a:"Stevie Wonder",y:1972,g:["rnb","funk"],e:"70s",pop:5,vid:"0CFuCYNx-1g"},
+  {t:"Stayin Alive",a:"Bee Gees",y:1977,g:["disco","pop"],e:"70s",pop:5,vid:"fNFzfwLM72c"},
+  {t:"Dreams",a:"Fleetwood Mac",y:1977,g:["rock","pop"],e:"70s",pop:5,vid:"mrZRURcb1cM"},
+  {t:"Born to Run",a:"Bruce Springsteen",y:1975,g:["rock"],e:"70s",pop:4,vid:"IHaFZgYQDDM"},
+  {t:"Roxanne",a:"The Police",y:1978,g:["rock","reggae"],e:"70s",pop:4,vid:"3T1c7GkzRQQ"},
+  {t:"Dancing Queen",a:"ABBA",y:1976,g:["pop","disco"],e:"70s",pop:5,vid:"xFrGuyw1V8s"},
+  {t:"We Are the Champions",a:"Queen",y:1977,g:["rock"],e:"70s",pop:5,vid:"04854XqcfBY"},
+  {t:"Comfortably Numb",a:"Pink Floyd",y:1979,g:["rock"],e:"70s",pop:4,vid:"_FrOQC-zEog"},
+  {t:"September",a:"Earth Wind and Fire",y:1978,g:["rnb","disco","funk"],e:"70s",pop:5,vid:"Gs069dndIYk"},
+  {t:"Le Freak",a:"Chic",y:1978,g:["disco","funk"],e:"70s",pop:3,vid:"SXNsrqVEsYE"},
+  {t:"Rapper's Delight",a:"Sugarhill Gang",y:1979,g:["hiphop"],e:"70s",pop:4,vid:"rKTUAESacQM"},
+  {t:"Stairway to Heaven",a:"Led Zeppelin",y:1971,g:["rock"],e:"70s",pop:5,vid:"QkF3oxziUI4"},
+  {t:"Jolene",a:"Dolly Parton",y:1973,g:["country"],e:"70s",pop:4,vid:"Ixrje2rXLMA"},
+  {t:"Don't Stop Me Now",a:"Queen",y:1978,g:["rock","pop"],e:"70s",pop:5,vid:"HgzGwKwLmgM"},
+  {t:"Highway to Hell",a:"ACDC",y:1979,g:["rock","metal"],e:"70s",pop:5,vid:"lo2bC5GPJl8"},
+  {t:"Paranoid",a:"Black Sabbath",y:1970,g:["metal","rock"],e:"70s",pop:3,vid:"0qanF-qlbBs"},
+  {t:"Sweet Child O Mine",a:"Guns N Roses",y:1988,g:["rock","metal"],e:"80s",pop:5,vid:"1w7OgIMMRc4"},
+  {t:"Take On Me",a:"a-ha",y:1985,g:["pop"],e:"80s",pop:5,vid:"djV11Xbc914"},
+  {t:"Billie Jean",a:"Michael Jackson",y:1983,g:["pop","rnb"],e:"80s",pop:5,vid:"Zi_XLOBDo_Y"},
+  {t:"Girls Just Want to Have Fun",a:"Cyndi Lauper",y:1983,g:["pop"],e:"80s",pop:5,vid:"PIb6AZdTr-A"},
+  {t:"Don't You Forget About Me",a:"Simple Minds",y:1985,g:["rock","pop"],e:"80s",pop:5,vid:"CdqoNKCCt7A"},
+  {t:"Like a Prayer",a:"Madonna",y:1989,g:["pop"],e:"80s",pop:5,vid:"79fzeNUqsbY"},
+  {t:"Every Breath You Take",a:"The Police",y:1983,g:["rock","pop"],e:"80s",pop:5,vid:"OMOGaugKpzs"},
+  {t:"With or Without You",a:"U2",y:1987,g:["rock"],e:"80s",pop:5,vid:"ujNeHIgTBZg"},
+  {t:"Purple Rain",a:"Prince",y:1984,g:["pop","rnb","rock"],e:"80s",pop:5,vid:"TvnYmWpD_T8"},
+  {t:"Thriller",a:"Michael Jackson",y:1982,g:["pop","rnb"],e:"80s",pop:5,vid:"sOnqjkJTMaA"},
+  {t:"Don't Stop Believin",a:"Journey",y:1981,g:["rock"],e:"80s",pop:5,vid:"1k8craCGpgs"},
+  {t:"Africa",a:"Toto",y:1982,g:["rock","pop"],e:"80s",pop:5,vid:"FTQbiNvZqaY"},
+  {t:"Running Up That Hill",a:"Kate Bush",y:1985,g:["pop","rock"],e:"80s",pop:5,vid:"wp43OdtAAkM"},
+  {t:"Sweet Dreams",a:"Eurythmics",y:1983,g:["pop","electronic"],e:"80s",pop:5,vid:"qeMFqkcPYcg"},
+  {t:"Eye of the Tiger",a:"Survivor",y:1982,g:["rock"],e:"80s",pop:5,vid:"btPJPFnesV4"},
+  {t:"Beat It",a:"Michael Jackson",y:1982,g:["pop","rock"],e:"80s",pop:5,vid:"oRdxUFDoQe0"},
+  {t:"Livin on a Prayer",a:"Bon Jovi",y:1986,g:["rock"],e:"80s",pop:5,vid:"lDK9QqIzhwk"},
+  {t:"Welcome to the Jungle",a:"Guns N Roses",y:1987,g:["rock","metal"],e:"80s",pop:5,vid:"o1tj2zJ2Wvg"},
+  {t:"Back in Black",a:"ACDC",y:1980,g:["rock","metal"],e:"80s",pop:5,vid:"pAgnJDJN4VA"},
+  {t:"Master of Puppets",a:"Metallica",y:1986,g:["metal"],e:"80s",pop:3,vid:"E0ozmU9cTDw"},
+  {t:"Come On Eileen",a:"Dexys Midnight Runners",y:1982,g:["pop"],e:"80s",pop:4,vid:"qPBHKvBTXKQ"},
+  {t:"Tainted Love",a:"Soft Cell",y:1981,g:["electronic","pop"],e:"80s",pop:4,vid:"XZVpR3iBSVg"},
+  {t:"Total Eclipse of the Heart",a:"Bonnie Tyler",y:1983,g:["pop","rock"],e:"80s",pop:5,vid:"lcOxIFDTBMc"},
+  {t:"Fast Car",a:"Tracy Chapman",y:1988,g:["folk","pop"],e:"80s",pop:4,vid:"AIOAlaAuV2s"},
+  {t:"Everybody Wants to Rule the World",a:"Tears for Fears",y:1985,g:["pop","rock"],e:"80s",pop:4,vid:"ycc3MTCzx-E"},
+  {t:"Pour Some Sugar on Me",a:"Def Leppard",y:1987,g:["rock","metal"],e:"80s",pop:4,vid:"CcGGRj0S01Q"},
+  {t:"Smells Like Teen Spirit",a:"Nirvana",y:1991,g:["rock","alt"],e:"90s",pop:5,vid:"hTWKbfoikeg"},
+  {t:"Baby Got Back",a:"Sir Mix-a-Lot",y:1992,g:["hiphop"],e:"90s",pop:5,vid:"reTx5sqvVJ4"},
+  {t:"Waterfalls",a:"TLC",y:1995,g:["rnb","pop"],e:"90s",pop:5,vid:"8WEtxJ4-sh4"},
+  {t:"Losing My Religion",a:"REM",y:1991,g:["alt","rock"],e:"90s",pop:4,vid:"if-UzXIQ5vw"},
+  {t:"Wannabe",a:"Spice Girls",y:1996,g:["pop"],e:"90s",pop:5,vid:"gJLIiF15wjQ"},
+  {t:"No Scrubs",a:"TLC",y:1999,g:["rnb","pop"],e:"90s",pop:5,vid:"FrLequ6dUdM"},
+  {t:"Creep",a:"Radiohead",y:1992,g:["alt","rock"],e:"90s",pop:4,vid:"XFkzRNyygfk"},
+  {t:"Enter Sandman",a:"Metallica",y:1991,g:["metal"],e:"90s",pop:4,vid:"CD-E5TBprUU"},
+  {t:"Under the Bridge",a:"Red Hot Chili Peppers",y:1992,g:["rock","alt"],e:"90s",pop:4,vid:"glen8VMXxr8"},
+  {t:"Black Hole Sun",a:"Soundgarden",y:1994,g:["rock","alt"],e:"90s",pop:3,vid:"3mbBbFH9fAg"},
+  {t:"Everlong",a:"Foo Fighters",y:1997,g:["rock","alt"],e:"90s",pop:4,vid:"eBG7P-K-r1Y"},
+  {t:"Gangsta's Paradise",a:"Coolio",y:1995,g:["hiphop"],e:"90s",pop:5,vid:"fPO76Jlnz6c"},
+  {t:"Killing Me Softly",a:"Fugees",y:1996,g:["hiphop","rnb"],e:"90s",pop:4,vid:"_O4E0wZRShs"},
+  {t:"Iris",a:"Goo Goo Dolls",y:1998,g:["rock","pop"],e:"90s",pop:5,vid:"NdYWuo9OFAw"},
+  {t:"Believe",a:"Cher",y:1998,g:["pop","electronic"],e:"90s",pop:5,vid:"nZXRV4MezEw"},
+  {t:"All I Want for Christmas Is You",a:"Mariah Carey",y:1994,g:["pop"],e:"90s",pop:5,vid:"aAkMkVFwAoo"},
+  {t:"Dammit",a:"blink-182",y:1997,g:["punk","rock"],e:"90s",pop:3,vid:"i3K91lH8dOg"},
+  {t:"All the Small Things",a:"blink-182",y:1999,g:["punk","rock"],e:"90s",pop:4,vid:"9Ht5RZpzPqw"},
+  {t:"What Is Love",a:"Haddaway",y:1993,g:["electronic","pop"],e:"90s",pop:5,vid:"HEXWRTEbj1I"},
+  {t:"Blue",a:"Eiffel 65",y:1998,g:["electronic","pop"],e:"90s",pop:5,vid:"68ugkg9re0U"},
+  {t:"Sandstorm",a:"Darude",y:1999,g:["electronic","house"],e:"90s",pop:5,vid:"y6120QOlsfU"},
+  {t:"Killing in the Name",a:"Rage Against the Machine",y:1992,g:["metal","rock","hiphop"],e:"90s",pop:4,vid:"bWXazVevoyA"},
+  {t:"Friends in Low Places",a:"Garth Brooks",y:1990,g:["country"],e:"90s",pop:4,vid:"8rGG8O0xKK8"},
+  {t:"Man I Feel Like a Woman",a:"Shania Twain",y:1999,g:["country","pop"],e:"90s",pop:4,vid:"UN8XNBs7nAA"},
+  {t:"Semi-Charmed Life",a:"Third Eye Blind",y:1997,g:["alt","rock"],e:"90s",pop:3,vid:"sWpXV4AXW-Q"},
+  {t:"Stay",a:"Lisa Loeb",y:1994,g:["alt","folk"],e:"90s",pop:3,vid:"MshrMcQQCdY"},
+  {t:"Crazy in Love",a:"Beyonce",y:2003,g:["pop","rnb"],e:"2000s",pop:5,vid:"ViwtNLUqkMY"},
+  {t:"Yeah!",a:"Usher",y:2004,g:["rnb","pop"],e:"2000s",pop:5,vid:"GxBSyx85Kp8"},
+  {t:"Hey Ya!",a:"OutKast",y:2003,g:["hiphop","pop"],e:"2000s",pop:5,vid:"PWgvGjAhvIw"},
+  {t:"Since U Been Gone",a:"Kelly Clarkson",y:2004,g:["pop","rock"],e:"2000s",pop:5,vid:"Cb-YfAOmEow"},
+  {t:"Toxic",a:"Britney Spears",y:2004,g:["pop"],e:"2000s",pop:5,vid:"LOZuxwVk7TU"},
+  {t:"In Da Club",a:"50 Cent",y:2003,g:["hiphop"],e:"2000s",pop:5,vid:"5qm8PH4xAss"},
+  {t:"Lose Yourself",a:"Eminem",y:2002,g:["hiphop"],e:"2000s",pop:5,vid:"_Yhyp-_hX2s"},
+  {t:"Clocks",a:"Coldplay",y:2002,g:["alt","rock"],e:"2000s",pop:4,vid:"d020hcWA_Ww"},
+  {t:"Seven Nation Army",a:"The White Stripes",y:2003,g:["rock","alt"],e:"2000s",pop:5,vid:"0J2QdDbelmY"},
+  {t:"Numb",a:"Linkin Park",y:2003,g:["rock","metal"],e:"2000s",pop:5,vid:"kXYiU_JCYtU"},
+  {t:"Mr Brightside",a:"The Killers",y:2003,g:["alt","rock"],e:"2000s",pop:5,vid:"gGdGFtwCNBE"},
+  {t:"Boulevard of Broken Dreams",a:"Green Day",y:2004,g:["rock","punk"],e:"2000s",pop:5,vid:"Soa3gO7tL-c"},
+  {t:"Poker Face",a:"Lady Gaga",y:2008,g:["pop","electronic"],e:"2000s",pop:5,vid:"bESGLojNYSo"},
+  {t:"Single Ladies",a:"Beyonce",y:2008,g:["pop","rnb"],e:"2000s",pop:5,vid:"4m1EFMoRFvY"},
+  {t:"Gold Digger",a:"Kanye West",y:2005,g:["hiphop"],e:"2000s",pop:5,vid:"6vwNcNOTVzY"},
+  {t:"Umbrella",a:"Rihanna",y:2007,g:["pop","rnb"],e:"2000s",pop:5,vid:"CvBfHwUxHIk"},
+  {t:"One More Time",a:"Daft Punk",y:2000,g:["electronic","house"],e:"2000s",pop:5,vid:"FGBhQbmPwH8"},
+  {t:"Stan",a:"Eminem",y:2000,g:["hiphop"],e:"2000s",pop:4,vid:"bXkqSBBAAIA"},
+  {t:"Before He Cheats",a:"Carrie Underwood",y:2005,g:["country"],e:"2000s",pop:4,vid:"b7HxM-3dObM"},
+  {t:"Complicated",a:"Avril Lavigne",y:2002,g:["punk","pop"],e:"2000s",pop:5,vid:"5NPBIwQyPWE"},
+  {t:"Sk8er Boi",a:"Avril Lavigne",y:2002,g:["punk","pop"],e:"2000s",pop:5,vid:"TIHRcSXaIYA"},
+  {t:"American Idiot",a:"Green Day",y:2004,g:["punk","rock"],e:"2000s",pop:5,vid:"Ee_uujKuJMI"},
+  {t:"Helena",a:"My Chemical Romance",y:2004,g:["rock","punk"],e:"2000s",pop:4,vid:"UCIjxZpBSyE"},
+  {t:"Welcome to the Black Parade",a:"My Chemical Romance",y:2006,g:["rock","punk"],e:"2000s",pop:5,vid:"RRKJiM9Njr8"},
+  {t:"Sugar Were Goin Down",a:"Fall Out Boy",y:2005,g:["rock","punk"],e:"2000s",pop:4,vid:"h0rkB-4hJhc"},
+  {t:"Misery Business",a:"Paramore",y:2007,g:["rock","punk"],e:"2000s",pop:4,vid:"aCyGvGEtOwc"},
+  {t:"Chop Suey",a:"System of a Down",y:2001,g:["metal","rock"],e:"2000s",pop:4,vid:"CSvFpBOe8eY"},
+  {t:"Gasolina",a:"Daddy Yankee",y:2004,g:["latin","reggae"],e:"2000s",pop:4,vid:"CCRncAuBhSQ"},
+  {t:"Hips Don't Lie",a:"Shakira",y:2005,g:["latin","pop"],e:"2000s",pop:5,vid:"DUT5rEU6pqM"},
+  {t:"Tik Tok",a:"Kesha",y:2009,g:["pop","electronic"],e:"2000s",pop:5,vid:"iP6XpLQM2Cs"},
+  {t:"Harder Better Faster Stronger",a:"Daft Punk",y:2001,g:["electronic","house"],e:"2000s",pop:4,vid:"gAjR4_CbPpQ"},
+  {t:"Blinding Lights",a:"The Weeknd",y:2019,g:["pop","rnb"],e:"2010s",pop:5,vid:"4NRXx6U8ABQ"},
+  {t:"Shape of You",a:"Ed Sheeran",y:2017,g:["pop"],e:"2010s",pop:5,vid:"JGwWNGJdvx8"},
+  {t:"Rolling in the Deep",a:"Adele",y:2010,g:["pop","rnb"],e:"2010s",pop:5,vid:"rYEDA3JcQqw"},
+  {t:"Uptown Funk",a:"Bruno Mars",y:2014,g:["pop","funk"],e:"2010s",pop:5,vid:"OPf0YbXqDm0"},
+  {t:"Old Town Road",a:"Lil Nas X",y:2019,g:["hiphop","country"],e:"2010s",pop:5,vid:"w2Ov5jzm3j8"},
+  {t:"Call Me Maybe",a:"Carly Rae Jepsen",y:2012,g:["pop"],e:"2010s",pop:5,vid:"fWNaR-rxAic"},
+  {t:"Royals",a:"Lorde",y:2013,g:["pop","alt"],e:"2010s",pop:4,vid:"nlcIKh6oBl8"},
+  {t:"Happy",a:"Pharrell Williams",y:2013,g:["pop","rnb"],e:"2010s",pop:5,vid:"ZbZSe6N_BXs"},
+  {t:"Get Lucky",a:"Daft Punk",y:2013,g:["electronic","funk","pop"],e:"2010s",pop:5,vid:"5NV6Rdv1h3Q"},
+  {t:"Shake It Off",a:"Taylor Swift",y:2014,g:["pop"],e:"2010s",pop:5,vid:"nfWlot6h_JM"},
+  {t:"Bad Guy",a:"Billie Eilish",y:2019,g:["pop","alt"],e:"2010s",pop:5,vid:"DyDfgMOUjCI"},
+  {t:"HUMBLE.",a:"Kendrick Lamar",y:2017,g:["hiphop"],e:"2010s",pop:4,vid:"tvTRZJ-4EyI"},
+  {t:"Despacito",a:"Luis Fonsi",y:2017,g:["latin","pop"],e:"2010s",pop:5,vid:"ktvTqknDobU"},
+  {t:"Someone Like You",a:"Adele",y:2011,g:["pop"],e:"2010s",pop:5,vid:"hLQl3WQQoQ0"},
+  {t:"Gangnam Style",a:"PSY",y:2012,g:["kpop","pop"],e:"2010s",pop:5,vid:"9bZkp7q19f0"},
+  {t:"Chandelier",a:"Sia",y:2014,g:["pop"],e:"2010s",pop:5,vid:"2vjPBrBU-TM"},
+  {t:"Levels",a:"Avicii",y:2011,g:["edm","electronic"],e:"2010s",pop:5,vid:"_ovdm2yX4MA"},
+  {t:"Wake Me Up",a:"Avicii",y:2013,g:["edm","folk"],e:"2010s",pop:5,vid:"IcrbM1l_BoI"},
+  {t:"Animals",a:"Martin Garrix",y:2013,g:["edm","house"],e:"2010s",pop:4,vid:"gCYcHz2k5x0"},
+  {t:"Clarity",a:"Zedd",y:2012,g:["edm","pop"],e:"2010s",pop:4,vid:"IxxstCcJlSc"},
+  {t:"Summer",a:"Calvin Harris",y:2014,g:["edm","pop"],e:"2010s",pop:5,vid:"ebXbLfLACGM"},
+  {t:"Titanium",a:"David Guetta",y:2011,g:["edm","pop"],e:"2010s",pop:5,vid:"JRfuAukYTKg"},
+  {t:"Somebody That I Used to Know",a:"Gotye",y:2011,g:["alt","pop"],e:"2010s",pop:5,vid:"8UVNT4wvIGY"},
+  {t:"Thrift Shop",a:"Macklemore",y:2012,g:["hiphop","pop"],e:"2010s",pop:5,vid:"QK8mJJJvaes"},
+  {t:"Radioactive",a:"Imagine Dragons",y:2012,g:["rock","alt"],e:"2010s",pop:5,vid:"ktvTqknDobU"},
+  {t:"Take Me to Church",a:"Hozier",y:2013,g:["alt","folk"],e:"2010s",pop:4,vid:"MYSVMgRr6pw"},
+  {t:"Lean On",a:"Major Lazer",y:2015,g:["edm","pop"],e:"2010s",pop:5,vid:"YqeW9_5kURI"},
+  {t:"God's Plan",a:"Drake",y:2018,g:["hiphop","rnb"],e:"2010s",pop:5,vid:"xpVfcZ0ZcFM"},
+  {t:"Sicko Mode",a:"Travis Scott",y:2018,g:["hiphop"],e:"2010s",pop:5,vid:"6ONRf7h3Mdk"},
+  {t:"Hotline Bling",a:"Drake",y:2015,g:["hiphop","rnb"],e:"2010s",pop:5,vid:"uxpDa-c-4Mc"},
+  {t:"Bodak Yellow",a:"Cardi B",y:2017,g:["hiphop"],e:"2010s",pop:4,vid:"PDAh0AZBHBQ"},
+  {t:"thank u next",a:"Ariana Grande",y:2018,g:["pop","rnb"],e:"2010s",pop:5,vid:"gl1aHhXnN1k"},
+  {t:"7 Rings",a:"Ariana Grande",y:2019,g:["pop","rnb"],e:"2010s",pop:5,vid:"QYh6mYIJG2Y"},
+  {t:"Cruise",a:"Florida Georgia Line",y:2012,g:["country"],e:"2010s",pop:4,vid:"5zpgHKPqiNs"},
+  {t:"Tennessee Whiskey",a:"Chris Stapleton",y:2015,g:["country","rnb"],e:"2010s",pop:4,vid:"4zAThXFOy2E"},
+  {t:"Thinking Out Loud",a:"Ed Sheeran",y:2014,g:["pop"],e:"2010s",pop:5,vid:"lp-EO5I60KA"},
+  {t:"Perfect",a:"Ed Sheeran",y:2017,g:["pop"],e:"2010s",pop:5,vid:"2Vv-BfVoq4g"},
+  {t:"Rockstar",a:"Post Malone",y:2017,g:["hiphop","rock"],e:"2010s",pop:5,vid:"UceaB4D0jpo"},
+  {t:"Sunflower",a:"Post Malone",y:2018,g:["pop","hiphop"],e:"2010s",pop:5,vid:"ApXoWvfEYVU"},
+  {t:"Circles",a:"Post Malone",y:2019,g:["pop"],e:"2010s",pop:5,vid:"wXhTHyIgQ_U"},
+  {t:"Senorita",a:"Shawn Mendes and Camila Cabello",y:2019,g:["pop","latin"],e:"2010s",pop:5,vid:"Pkh8UtuejGw"},
+  {t:"Levitating",a:"Dua Lipa",y:2020,g:["pop","electronic"],e:"2020s",pop:5,vid:"TUVcZfQe-Kw"},
+  {t:"Butter",a:"BTS",y:2021,g:["kpop","pop"],e:"2020s",pop:5,vid:"WMweEpGlu_U"},
+  {t:"Good 4 U",a:"Olivia Rodrigo",y:2021,g:["pop","punk"],e:"2020s",pop:5,vid:"gNi_6U5Pm_o"},
+  {t:"As It Was",a:"Harry Styles",y:2022,g:["pop"],e:"2020s",pop:5,vid:"H5v3kku4y6Q"},
+  {t:"Flowers",a:"Miley Cyrus",y:2023,g:["pop"],e:"2020s",pop:5,vid:"G7KNmW9a75Y"},
+  {t:"Heat Waves",a:"Glass Animals",y:2020,g:["alt","pop"],e:"2020s",pop:5,vid:"mRD0-GxOHMY"},
+  {t:"Drivers License",a:"Olivia Rodrigo",y:2021,g:["pop"],e:"2020s",pop:5,vid:"ZmDBbnmKpqQ"},
+  {t:"Anti-Hero",a:"Taylor Swift",y:2022,g:["pop"],e:"2020s",pop:5,vid:"b1kbLwvqugk"},
+  {t:"Cruel Summer",a:"Taylor Swift",y:2019,g:["pop"],e:"2020s",pop:5,vid:"ic8j13piAhQ"},
+  {t:"Espresso",a:"Sabrina Carpenter",y:2024,g:["pop"],e:"2020s",pop:5,vid:"eVli-NN3H9E"},
+  {t:"Paint The Town Red",a:"Doja Cat",y:2023,g:["hiphop","pop"],e:"2020s",pop:5,vid:"e3XQbHYp4K0"},
+  {t:"Rich Flex",a:"Drake and 21 Savage",y:2022,g:["hiphop"],e:"2020s",pop:5,vid:"CSvFpBOe8eY"},
+  {t:"About Damn Time",a:"Lizzo",y:2022,g:["pop","funk"],e:"2020s",pop:5,vid:"IXXxciRUMzE"},
+  {t:"Vampire",a:"Olivia Rodrigo",y:2023,g:["pop","alt"],e:"2020s",pop:5,vid:"RlPNh_PBZb4"},
+  {t:"Easy On Me",a:"Adele",y:2021,g:["pop"],e:"2020s",pop:5,vid:"U3ASj1L6_sY"},
+  {t:"Stay",a:"Kid Laroi and Justin Bieber",y:2021,g:["pop"],e:"2020s",pop:5,vid:"hknbCMwOINQ"},
+  {t:"Montero",a:"Lil Nas X",y:2021,g:["hiphop","pop"],e:"2020s",pop:5,vid:"6swmTBVI83k"},
+  {t:"Unholy",a:"Sam Smith and Kim Petras",y:2022,g:["pop","electronic"],e:"2020s",pop:5,vid:"mw3KsHxBtYE"},
+  {t:"Kill Bill",a:"SZA",y:2022,g:["rnb","pop"],e:"2020s",pop:5,vid:"ho36PNhqtJ4"},
+  {t:"Ella Baila Sola",a:"Eslabon Armado",y:2023,g:["latin"],e:"2020s",pop:4,vid:"vKBMz7vGMmQ"},
+];
+
+// ── State ──────────────────────────────────────────────────────
+let selEra='any', selGenre='any', selDiff='easy';
+let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
+let waveAnim=null, tickTO=null, stopTO=null;
+let stats={c:0,s:0,p:0};
+let used=new Set();
+let ytPlayer=null, ytReady=false, ytLoaded=false;
+
+function getClips(){ return DIFFS[selDiff].clips; }
+
+function getPool(){
+  return DB.filter(s=>{
+    const eOk=selEra==='any'||s.e===selEra;
+    const gOk=selGenre==='any'||s.g.includes(selGenre);
+    if(!eOk||!gOk)return false;
+    if(selDiff==='easy')return s.pop>=5;
+    if(selDiff==='medium')return s.pop>=4;
+    if(selDiff==='hard')return s.pop>=3;
+    if(selDiff==='expert')return s.pop>=2;
+    return true;
+  });
+}
+
+function pick(){
+  const pool=getPool();
+  const src=pool.length?pool:DB;
+  const avail=src.filter(s=>!used.has(s.t+'|'+s.a));
+  const from=avail.length?avail:src;
+  return from[Math.floor(Math.random()*from.length)];
+}
+
+// ── YouTube API ────────────────────────────────────────────────
+window.onYouTubeIframeAPIReady = function(){
+  ytReady=true;
+  ytPlayer = new YT.Player('yt-player',{
+    height:'1', width:'1',
+    playerVars:{autoplay:0, controls:0, modestbranding:1, rel:0, playsinline:1},
+    events:{
+      onReady: ()=>{
+        ytLoaded=true;
+        document.getElementById('loading-txt').textContent='';
+        if(curSong) loadVideo(curSong.vid);
+      },
+      onStateChange: e=>{
+        // YT.PlayerState.PLAYING = 1
+        if(e.data===1) document.getElementById('loading-txt').textContent='';
+      }
+    }
+  });
+};
+
+function loadVideo(vid){
+  if(!ytLoaded||!ytPlayer) return;
+  ytPlayer.loadVideoById({videoId:vid, startSeconds:5});
+  ytPlayer.pauseVideo();
+}
+
+function stopYT(){
+  if(ytLoaded&&ytPlayer){try{ytPlayer.pauseVideo();}catch(e){}}
+}
+
+// ── Waveform ───────────────────────────────────────────────────
+function buildWave(){
+  const wf=document.getElementById('wf');
+  wf.innerHTML='';
+  for(let i=0;i<64;i++){
+    const b=document.createElement('div');
+    b.className='wb';
+    b.style.height=(8+Math.random()*84)+'%';
+    wf.appendChild(b);
+  }
+}
+
+function animWave(dur){
+  const bars=document.querySelectorAll('.wb');
+  const n=bars.length;
+  let elapsed=0;
+  clearInterval(waveAnim);
+  bars.forEach(b=>b.classList.remove('p','a'));
+  waveAnim=setInterval(()=>{
+    elapsed+=50;
+    const prog=Math.min(elapsed/(dur*1000),1);
+    const idx=Math.floor(prog*n);
+    bars.forEach((b,i)=>{b.classList.remove('p','a');if(i<idx)b.classList.add('p');else if(i===idx)b.classList.add('a');});
+  },50);
+}
+
+function stopAnimWave(){
+  clearInterval(waveAnim);
+  document.querySelectorAll('.wb').forEach(b=>b.classList.remove('p','a'));
+}
+
+// ── Clip management ────────────────────────────────────────────
+function buildClips(){
+  const row=document.getElementById('clip-row');
+  row.innerHTML='';
+  getClips().forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='cp'+(i===0?' on cur':'');
+    b.textContent=s+'s';
+    b.onclick=()=>{if(i<=clipIdx){clipIdx=i;updateClips();playClip();}};
+    row.appendChild(b);
+  });
+}
+
+function updateClips(){
+  const clips=getClips();
+  document.querySelectorAll('.cp').forEach((b,i)=>{
+    b.className='cp'+(i<clipIdx?' on done':i===clipIdx?' on cur':'');
+  });
+  document.getElementById('tcur').textContent='0.0s';
+  document.getElementById('ttot').textContent='of '+clips[clipIdx]+'s';
+}
+
+function stopPlay(){
+  clearTimeout(stopTO);clearTimeout(tickTO);clearInterval(waveAnim);
+  stopYT();
+  isPlaying=false;
+  document.getElementById('pbtn').innerHTML='&#9654;';
+  stopAnimWave();
+}
+
+function playClip(){
+  if(!curSong)return;
+  if(isPlaying){stopPlay();return;}
+  if(!ytLoaded){
+    document.getElementById('loading-txt').textContent='Loading audio...';
+    return;
+  }
+  const dur=getClips()[clipIdx];
+  isPlaying=true;
+  document.getElementById('pbtn').innerHTML='&#9646;&#9646;';
+  document.getElementById('loading-txt').textContent='';
+
+  // Seek to 5s and play
+  try{
+    ytPlayer.seekTo(5, true);
+    ytPlayer.playVideo();
+  }catch(e){}
+
+  animWave(dur);
+
+  let t=0;
+  const tick=()=>{
+    t=Math.min(t+0.1, dur);
+    document.getElementById('tcur').textContent=t.toFixed(1)+'s';
+    if(t<dur) tickTO=setTimeout(tick, 100);
+  };
+  tick();
+
+  stopTO=setTimeout(()=>{
+    stopPlay();
+    document.getElementById('tcur').textContent=dur.toFixed(1)+'s';
+  }, dur*1000);
+}
+
+// ── Guesses ────────────────────────────────────────────────────
+function renderGuesses(){
+  const l=document.getElementById('glist');
+  l.innerHTML='';
+  guesses.forEach(g=>{
+    const d=document.createElement('div');
+    d.className='gi '+(g.sk?'sk':'wr');
+    d.textContent=g.sk?'— Skipped':'✗ '+g.text;
+    l.appendChild(d);
+  });
+}
+
+// ── Search ─────────────────────────────────────────────────────
+function buildSearch(){
+  const inp=document.getElementById('ginput');
+  const dd=document.getElementById('sdrop');
+  inp.value='';dd.style.display='none';
+  inp.oninput=()=>{
+    const q=inp.value.toLowerCase().trim();
+    if(!q){dd.style.display='none';return;}
+    const matches=DB.filter(s=>s.t.toLowerCase().includes(q)||s.a.toLowerCase().includes(q)).slice(0,9);
+    if(!matches.length){dd.style.display='none';return;}
+    dd.innerHTML='';dd.style.display='block';
+    matches.forEach(s=>{
+      const item=document.createElement('div');
+      item.className='sdi';
+      item.innerHTML=`<div class="sdi-t">${s.t}</div><div class="sdi-m">${s.a} &bull; ${s.y}</div>`;
+      item.onclick=()=>{inp.value=s.t+' \u2014 '+s.a;dd.style.display='none';};
+      dd.appendChild(item);
+    });
+  };
+}
+
+function skip(){
+  guesses.push({sk:true});renderGuesses();stopPlay();
+  const clips=getClips();
+  if(clipIdx<clips.length-1){clipIdx++;updateClips();}
+  else endGame(false);
+  document.getElementById('ginput').value='';
+  document.getElementById('sdrop').style.display='none';
+}
+
+function guess(){
+  const val=document.getElementById('ginput').value.trim();
+  if(!val)return;
+  const won=val.toLowerCase().includes(curSong.t.toLowerCase())||
+            curSong.t.toLowerCase().includes(val.toLowerCase().split('\u2014')[0].trim());
+  if(won){stopPlay();endGame(true);}
+  else{
+    guesses.push({text:val,sk:false});renderGuesses();stopPlay();
+    const clips=getClips();
+    if(clipIdx<clips.length-1){clipIdx++;updateClips();}
+    else endGame(false);
+    document.getElementById('ginput').value='';
+    document.getElementById('sdrop').style.display='none';
+  }
+}
+
+// ── End game ───────────────────────────────────────────────────
+function endGame(won){
+  stopPlay();
+  stats.p++;if(won){stats.c++;stats.s++;}else stats.s=0;
+  document.getElementById('sc').textContent=stats.c;
+  document.getElementById('ss').textContent=stats.s;
+  document.getElementById('sp').textContent=stats.p;
+  used.add(curSong.t+'|'+curSong.a);
+  document.getElementById('game-area').style.display='none';
+  const attempts=guesses.length+(won?1:0);
+  const ra=document.getElementById('result-area');
+  ra.style.display='block';
+  ra.innerHTML=`<div class="rcard">
+    <div class="rico">${won?'🎵':'😐'}</div>
+    <div class="rsong">${curSong.t}</div>
+    <div class="rart">${curSong.a} &bull; ${curSong.y}</div>
+    <div class="rbadges">
+      ${won?`<span class="rb rb-g">Got it in ${attempts} guess${attempts!==1?'es':''}</span>`:'<span class="rb rb-r">Missed this one</span>'}
+      <span class="rb rb-n">Clip: ${getClips()[clipIdx]}s</span>
+      <span class="rb rb-n">${selDiff}</span>
+    </div>
+    <div class="ract">
+      <a class="byt" href="https://www.youtube.com/watch?v=${curSong.vid}" target="_blank" rel="noopener">Watch on YouTube</a>
+      <button class="bnext" onclick="startGame()">Next song</button>
+    </div>
+  </div>`;
+}
+
+// ── Start game ─────────────────────────────────────────────────
+function startGame(){
+  stopPlay();
+  curSong=pick();clipIdx=0;guesses=[];
+  buildWave();buildClips();updateClips();renderGuesses();buildSearch();
+  document.getElementById('game-area').style.display='block';
+  document.getElementById('result-area').style.display='none';
+  document.getElementById('loading-txt').textContent=ytLoaded?'':'Loading audio...';
+  if(ytLoaded) loadVideo(curSong.vid);
+}
+
+function setDiff(d){
+  selDiff=d;
+  document.querySelectorAll('.diff-pill').forEach(b=>b.classList.toggle('active',b.dataset.d===d));
+  document.getElementById('diff-hint').textContent=DIFFS[d].hint;
+  used.clear();startGame();
+}
+
+// ── Events ─────────────────────────────────────────────────────
+document.getElementById('sel-era').onchange=e=>{selEra=e.target.value;used.clear();startGame();};
+document.getElementById('sel-genre').onchange=e=>{selGenre=e.target.value;used.clear();startGame();};
+document.getElementById('diff-row').onclick=e=>{const p=e.target.closest('.diff-pill');if(p)setDiff(p.dataset.d);};
+document.getElementById('pbtn').onclick=playClip;
+document.getElementById('bskip').onclick=skip;
+document.getElementById('bguess').onclick=guess;
+document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')guess();});
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('sdrop');
+  if(dd&&!dd.contains(e.target)&&e.target!==document.getElementById('ginput'))dd.style.display='none';
+});
+
+// ── Init ───────────────────────────────────────────────────────
+setDiff('easy');
+</script>
+
+<!-- Load YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
