@@ -242,6 +242,47 @@ let stats={c:0,s:0,p:0};
 let songPool=[], poolOffset=0;
 let searchCache={};
 
+// ── Genre matching ─────────────────────────────────────────────
+const GENRE_KEYWORDS = {
+  'pop':['pop'],
+  'hip-hop':['hip-hop','hip hop','rap','trap','r&b'],
+  'r-b-soul':['r&b','soul','rhythm','blues','funk'],
+  'rock':['rock'],
+  'alternative':['alternative','indie','alt'],
+  'metal':['metal','heavy metal','thrash','death metal','black metal'],
+  'punk':['punk','post-punk','hardcore'],
+  'country':['country'],
+  'folk':['folk','acoustic','singer-songwriter','bluegrass'],
+  'jazz':['jazz'],
+  'blues':['blues'],
+  'classical':['classical','orchestra','symphony','opera','chamber'],
+  'electronic':['electronic','electro','synth','techno','dance'],
+  'house':['house','techno','trance','club','dance'],
+  'edm':['edm','electronic','dance','electro','club'],
+  'disco':['disco','funk','soul'],
+  'reggae':['reggae','dancehall','ska','dub'],
+  'latin':['latin','reggaeton','salsa','bachata','cumbia','bossa','samba'],
+  'k-pop':['k-pop','korean','kpop'],
+  'j-pop':['j-pop','japanese','jpop','anime'],
+  'gospel':['gospel','christian','worship','ccm','spiritual'],
+  'new-age':['new age','ambient','chill','meditation'],
+  'soundtrack':['soundtrack','score','film','theme','cinematic'],
+  'world-music':['world','african','celtic','indian','folk'],
+  'afrobeats':['afrobeats','afro','afropop','afrobeat'],
+  'ska':['ska','reggae','rocksteady'],
+  'grunge':['grunge','alternative','rock'],
+  'emo':['emo','post-hardcore','screamo','punk'],
+  'trap':['trap','hip-hop','rap'],
+  'drill':['drill','rap','hip-hop'],
+};
+
+function genreMatches(song, genre){
+  if(genre==='all') return true;
+  const keywords = GENRE_KEYWORDS[genre]||[genre.replace(/-/g,' ')];
+  const songGenre = (song.primaryGenreName||'').toLowerCase();
+  return keywords.some(kw=>songGenre.includes(kw));
+}
+
 // ── iTunes API ──────────────────────────────────────────────────
 async function fetchSongs(genre, era){
   const cacheKey=genre+'|'+era;
@@ -283,16 +324,17 @@ async function fetchSongs(genre, era){
   try {
     const res = await fetch(url + '&callback=', {mode:'cors'});
     const data = await res.json();
-    const songs = (data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+    const raw = (data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+    const songs = genre==='all' ? raw : raw.filter(s=>genreMatches(s, genre));
     searchCache[cacheKey] = songs;
     return songs;
   } catch(e){
-    // Fallback: no genreId filter
     try {
       const fallback = `https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&mediaType=music&limit=100&entity=song`;
       const res2 = await fetch(fallback);
       const data2 = await res2.json();
-      const songs2 = (data2.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+      const raw2 = (data2.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+      const songs2 = genre==='all' ? raw2 : raw2.filter(s=>genreMatches(s, genre));
       searchCache[cacheKey] = songs2;
       return songs2;
     } catch(e2){ return []; }
