@@ -120,6 +120,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 
   <div class="filter-row">
     <select id="sel-genre">
+      <option value="all">All genres</option>
       <option value="pop">Pop</option>
       <option value="hip-hop">Hip-hop / Rap</option>
       <option value="r-b-soul">R&amp;B / Soul</option>
@@ -247,7 +248,7 @@ async function fetchSongs(genre, era){
   if(searchCache[cacheKey]) return searchCache[cacheKey];
 
   setStatus('Finding songs...');
-  const genreId = ITUNES_GENRE_MAP[genre]||'14';
+  const genreId = (genre==='all') ? '' : (ITUNES_GENRE_MAP[genre]||'14');
 
   // Build search terms for different eras
   const eraTerms = {
@@ -256,7 +257,10 @@ async function fetchSongs(genre, era){
   };
 
   let url;
-  if(era && eraTerms[era]){
+  if(genre==='all'){
+    const eraTerm = (era && eraTerms[era]) ? eraTerms[era] : 'top hits music';
+    url = `https://itunes.apple.com/search?term=${encodeURIComponent(eraTerm)}&mediaType=music&limit=200&entity=song`;
+  } else if(era && eraTerms[era]){
     url = `https://itunes.apple.com/search?term=${encodeURIComponent(eraTerms[era])}&mediaType=music&genreId=${genreId}&limit=200&entity=song`;
   } else {
     // No era filter — use broad genre search
