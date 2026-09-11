@@ -11,41 +11,50 @@
   --bg:#080808;--surface:#111;--s2:#181818;--s3:#202020;
   --border:#252525;--b2:#303030;
   --green:#1db954;--text:#f0f0f0;--t2:#999;--t3:#555;
-  --red:#e74c3c;--yellow:#f39c12;--purple:#9b59b6;
+  --red:#e74c3c;--yellow:#f39c12;--purple:#9b59b6;--orange:#e67e22;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
 .shell{max-width:660px;margin:0 auto;padding:0 18px 40px}
-header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space-between}
+header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space-between}
 .logo{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.5px}
 .logo span{color:var(--green)}
 .hstats{display:flex;gap:18px}
 .hstat{text-align:center}
 .hstat-n{font-size:18px;font-weight:600;font-family:'Space Grotesk',sans-serif}
 .hstat-l{font-size:10px;color:var(--t3);letter-spacing:.05em;margin-top:1px}
-.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+
+/* Filter row */
+.filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .filter-row select{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer}
 .filter-row select:focus{outline:none;border-color:var(--green)}
-.diff-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-.diff-pill{flex:1;min-width:70px;padding:7px 4px;border-radius:20px;border:1px solid var(--b2);background:transparent;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;text-align:center;color:var(--t3)}
+
+/* Difficulty */
+.diff-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.diff-pill{flex:1;min-width:60px;padding:7px 4px;border-radius:20px;border:1px solid var(--b2);background:transparent;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;text-align:center;color:var(--t3)}
 .diff-pill[data-d="easy"].active{background:#1db95420;border-color:#1db95460;color:var(--green)}
 .diff-pill[data-d="medium"].active{background:#f39c1220;border-color:#f39c1260;color:var(--yellow)}
-.diff-pill[data-d="hard"].active{background:#e74c3c20;border-color:#e74c3c60;color:var(--red)}
-.diff-pill[data-d="expert"].active{background:#9b59b620;border-color:#9b59b660;color:var(--purple)}
-.diff-pill[data-d="impossible"].active{background:#e74c3c30;border-color:#e74c3c80;color:#ff6b6b}
-.diff-hint{font-size:11px;color:var(--t3);margin-bottom:14px;padding:0 2px;min-height:16px}
-/* Hidden YouTube player */
-#yt-container{position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none}
-/* Player card */
+.diff-pill[data-d="hard"].active{background:#e67e2220;border-color:#e67e2260;color:var(--orange)}
+.diff-pill[data-d="expert"].active{background:#e74c3c20;border-color:#e74c3c60;color:var(--red)}
+.diff-pill[data-d="impossible"].active{background:#9b59b620;border-color:#9b59b660;color:var(--purple)}
+.diff-hint{font-size:11px;color:var(--t3);margin-bottom:12px;min-height:14px}
+
+/* Start time toggle */
+.start-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.start-lbl{font-size:12px;color:var(--t3)}
+.start-btns{display:flex;gap:5px}
+.start-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.start-btn.active{background:var(--green);border-color:var(--green);color:#000;font-weight:600}
+
+/* Player */
 .player{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
 .clip-row{display:flex;gap:5px;margin-bottom:16px}
 .cp{flex:1;padding:6px 0;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);font-size:11px;font-family:'Inter',sans-serif;cursor:default;transition:all .15s;text-align:center}
 .cp.on{color:var(--t2);cursor:pointer}
 .cp.cur{background:var(--green);border-color:var(--green);color:#000;font-weight:600}
-.cp.done{border-color:var(--border);color:var(--t3);background:var(--s2)}
-.wf{display:flex;align-items:center;gap:2px;height:52px;margin-bottom:16px;cursor:pointer}
+.cp.done{background:var(--s2);color:var(--t3)}
+.wf{display:flex;align-items:center;gap:2px;height:52px;margin-bottom:16px}
 .wb{flex:1;border-radius:2px;background:var(--s3);transition:background .04s}
-.wb.p{background:#1db95455}
-.wb.a{background:var(--green)}
+.wb.p{background:#1db95455}.wb.a{background:var(--green)}
 .play-row{display:flex;align-items:center;gap:14px}
 .pbtn{width:52px;height:52px;border-radius:50%;background:var(--green);border:none;color:#000;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s}
 .pbtn:hover{background:#1ed760;transform:scale(1.04)}
@@ -53,29 +62,36 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
 .tinfo{display:flex;flex-direction:column;gap:2px}
 .tcur{font-size:20px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--green)}
 .ttot{font-size:11px;color:var(--t3)}
-.loading-txt{font-size:12px;color:var(--t3);margin-top:2px}
+.status-txt{font-size:11px;color:var(--t3);margin-top:1px;min-height:14px}
+
+/* Guesses */
 .glist{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .gi{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;font-size:13px}
 .gi.wr{background:#e74c3c12;border:1px solid #e74c3c30;color:var(--red)}
 .gi.sk{background:var(--s2);border:1px solid var(--border);color:var(--t3)}
+
+/* Search */
 .sw{position:relative;margin-bottom:9px}
 .si{width:100%;padding:11px 14px 11px 40px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .15s}
 .si:focus{outline:none;border-color:var(--green)}
 .sico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;pointer-events:none}
-.sdrop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--s2);border:1px solid var(--b2);border-radius:10px;overflow:hidden;z-index:20;max-height:210px;overflow-y:auto;box-shadow:0 8px 24px #0008}
+.sdrop{position:absolute;top:calc(100%+4px);left:0;right:0;background:var(--s2);border:1px solid var(--b2);border-radius:10px;overflow:hidden;z-index:20;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px #0008}
 .sdi{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
 .sdi:last-child{border-bottom:none}
 .sdi:hover{background:var(--s3)}
-.sdi-t{font-size:13px;font-weight:500;color:var(--text)}
+.sdi-t{font-size:13px;font-weight:500}
 .sdi-m{font-size:11px;color:var(--t3);margin-top:1px}
+
 .arow{display:flex;gap:8px}
 .bskip{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
 .bskip:hover{border-color:var(--t3);color:var(--text)}
-.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
 .bguess:hover{background:#1ed760}
+
+/* Result */
 .rcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
-.rico{font-size:38px;margin-bottom:10px}
-.rsong{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;margin-bottom:3px}
+.album-art{width:80px;height:80px;border-radius:8px;margin:0 auto 12px;display:block;object-fit:cover;background:var(--s2)}
+.rsong{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;margin-bottom:3px}
 .rart{font-size:13px;color:var(--t2);margin-bottom:14px}
 .rbadges{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
 .rb{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid}
@@ -87,15 +103,11 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
 .byt:hover{border-color:var(--t3);color:var(--text)}
 .bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
 .bnext:hover{background:#1ed760}
+
+.no-song{text-align:center;padding:20px;color:var(--t3);font-size:13px}
 </style>
 </head>
 <body>
-
-<!-- Hidden YouTube player container -->
-<div id="yt-container">
-  <div id="yt-player"></div>
-</div>
-
 <div class="shell">
   <header>
     <div class="logo">Sound<span>Snap</span></div>
@@ -107,39 +119,52 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
   </header>
 
   <div class="filter-row">
-    <select id="sel-era">
-      <option value="any">All eras</option>
-      <option value="pre60">Classic (pre-1960s)</option>
-      <option value="60s">1960s</option>
-      <option value="70s">1970s</option>
-      <option value="80s">1980s</option>
-      <option value="90s">1990s</option>
-      <option value="2000s">2000s</option>
-      <option value="2010s">2010s</option>
-      <option value="2020s">2020s</option>
-    </select>
     <select id="sel-genre">
-      <option value="any">All genres</option>
       <option value="pop">Pop</option>
-      <option value="hiphop">Hip-hop / Rap</option>
-      <option value="rnb">R&amp;B / Soul</option>
+      <option value="hip-hop">Hip-hop / Rap</option>
+      <option value="r-b-soul">R&amp;B / Soul</option>
       <option value="rock">Rock</option>
-      <option value="alt">Alternative / Indie</option>
+      <option value="alternative">Alternative / Indie</option>
       <option value="metal">Metal</option>
       <option value="punk">Punk</option>
       <option value="country">Country</option>
-      <option value="folk">Folk</option>
+      <option value="folk">Folk / Acoustic</option>
       <option value="jazz">Jazz</option>
-      <option value="electronic">Electronic</option>
-      <option value="edm">EDM</option>
+      <option value="blues">Blues</option>
+      <option value="classical">Classical</option>
+      <option value="electronic">Electronic / Dance</option>
       <option value="house">House / Techno</option>
+      <option value="edm">EDM</option>
       <option value="disco">Disco / Funk</option>
-      <option value="reggae">Reggae</option>
+      <option value="reggae">Reggae / Dancehall</option>
       <option value="latin">Latin</option>
-      <option value="kpop">K-pop</option>
+      <option value="k-pop">K-pop</option>
+      <option value="j-pop">J-pop</option>
+      <option value="gospel">Gospel / Christian</option>
+      <option value="new-age">New Age / Ambient</option>
+      <option value="soundtrack">Soundtrack / Score</option>
+      <option value="world-music">World Music</option>
+      <option value="afrobeats">Afrobeats</option>
+      <option value="ska">Ska</option>
+      <option value="grunge">Grunge</option>
+      <option value="emo">Emo / Post-hardcore</option>
+      <option value="trap">Trap</option>
+      <option value="drill">Drill</option>
+    </select>
+    <select id="sel-era">
+      <option value="">Any era</option>
+      <option value="1950">1950s</option>
+      <option value="1960">1960s</option>
+      <option value="1970">1970s</option>
+      <option value="1980">1980s</option>
+      <option value="1990">1990s</option>
+      <option value="2000">2000s</option>
+      <option value="2010">2010s</option>
+      <option value="2020">2020s</option>
     </select>
   </div>
 
+  <!-- Difficulty -->
   <div class="diff-row" id="diff-row">
     <button class="diff-pill active" data-d="easy">Easy</button>
     <button class="diff-pill" data-d="medium">Medium</button>
@@ -149,6 +174,16 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
   </div>
   <div class="diff-hint" id="diff-hint"></div>
 
+  <!-- Start time -->
+  <div class="start-row">
+    <span class="start-lbl">Start song at:</span>
+    <div class="start-btns">
+      <button class="start-btn active" data-s="0">Beginning</button>
+      <button class="start-btn" data-s="30">30s in</button>
+    </div>
+  </div>
+
+  <!-- Player -->
   <div class="player">
     <div class="clip-row" id="clip-row"></div>
     <div class="wf" id="wf"></div>
@@ -156,8 +191,8 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
       <button class="pbtn" id="pbtn" aria-label="Play clip">&#9654;</button>
       <div class="tinfo">
         <div class="tcur" id="tcur">0.0s</div>
-        <div class="ttot" id="ttot">of 1s</div>
-        <div class="loading-txt" id="loading-txt">Loading song...</div>
+        <div class="ttot" id="ttot">of 0.1s</div>
+        <div class="status-txt" id="status-txt">Loading...</div>
       </div>
     </div>
   </div>
@@ -167,7 +202,7 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
   <div id="game-area">
     <div class="sw">
       <span class="sico">&#128269;</span>
-      <input class="si" id="ginput" placeholder="Name that track..." autocomplete="off"/>
+      <input class="si" id="ginput" placeholder="Search song or artist..." autocomplete="off"/>
       <div class="sdrop" id="sdrop" style="display:none"></div>
     </div>
     <div class="arow">
@@ -180,279 +215,133 @@ header{padding:24px 0 16px;display:flex;align-items:center;justify-content:space
 </div>
 
 <script>
-// ── Difficulty config ──────────────────────────────────────────
+// ── Config ──────────────────────────────────────────────────────
 const DIFFS = {
-  easy:       { clips:[1,2,5,8,12],      hint:'Clips: 1s→2s→5s→8s→12s  •  Most popular hits only' },
-  medium:     { clips:[1,2,5,8,12],      hint:'Clips: 1s→2s→5s→8s→12s  •  Mix of hits and deep cuts' },
-  hard:       { clips:[0.5,1,2,5,8],     hint:'Clips: 0.5s→1s→2s→5s→8s  •  Shorter clips, broader pool' },
-  expert:     { clips:[0.2,0.5,1,2,5],   hint:'Clips: 0.2s→0.5s→1s→2s→5s  •  Very short clips' },
-  impossible: { clips:[0.1,0.2,0.5,1,2], hint:'Clips: 0.1s→0.2s→0.5s→1s→2s  •  Good luck 💀' },
+  easy:       { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Top chart hits' },
+  medium:     { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Broader song mix' },
+  hard:       { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Less popular tracks included' },
+  expert:     { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Deep cuts and B-sides' },
+  impossible: { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Anything goes 💀' },
 };
 
-// ── Song database with YouTube IDs ────────────────────────────
-const DB = [
-  {t:"What a Wonderful World",a:"Louis Armstrong",y:1967,g:["jazz"],e:"pre60",pop:3,vid:"rBrd_3VMC3c"},
-  {t:"Hound Dog",a:"Elvis Presley",y:1956,g:["rock","pop"],e:"pre60",pop:4,vid:"pDiEJMbExAM"},
-  {t:"Johnny B. Goode",a:"Chuck Berry",y:1958,g:["rock"],e:"pre60",pop:3,vid:"ZpSB9_SQXdQ"},
-  {t:"Blue Suede Shoes",a:"Elvis Presley",y:1956,g:["rock","pop"],e:"pre60",pop:3,vid:"ycNGz4g7OJk"},
-  {t:"Rock Around the Clock",a:"Bill Haley",y:1954,g:["rock"],e:"pre60",pop:3,vid:"Trq6MExFMlo"},
-  {t:"Great Balls of Fire",a:"Jerry Lee Lewis",y:1957,g:["rock"],e:"pre60",pop:3,vid:"ZXiXpECBg5A"},
-  {t:"Peggy Sue",a:"Buddy Holly",y:1957,g:["rock"],e:"pre60",pop:2,vid:"IqRUPmyEJWk"},
-  {t:"La Bamba",a:"Ritchie Valens",y:1958,g:["rock","latin"],e:"pre60",pop:3,vid:"UMRhMah2pKo"},
-  {t:"Take Five",a:"Dave Brubeck",y:1959,g:["jazz"],e:"pre60",pop:2,vid:"vmDDOFXSgAs"},
-  {t:"Hey Jude",a:"The Beatles",y:1968,g:["rock","pop"],e:"60s",pop:5,vid:"A_MjCqQoLLA"},
-  {t:"Respect",a:"Aretha Franklin",y:1967,g:["rnb"],e:"60s",pop:5,vid:"6FOUqQt3Kg0"},
-  {t:"Purple Haze",a:"Jimi Hendrix",y:1967,g:["rock"],e:"60s",pop:5,vid:"cJunCsrhJjg"},
-  {t:"Good Vibrations",a:"The Beach Boys",y:1966,g:["pop","rock"],e:"60s",pop:4,vid:"Eab_beh07HU"},
-  {t:"Gimme Shelter",a:"The Rolling Stones",y:1969,g:["rock"],e:"60s",pop:4,vid:"R_SPNVdBmdM"},
-  {t:"Light My Fire",a:"The Doors",y:1967,g:["rock"],e:"60s",pop:4,vid:"t107TJ6PSUM"},
-  {t:"Paint It Black",a:"The Rolling Stones",y:1966,g:["rock"],e:"60s",pop:4,vid:"O4irXQhgMqg"},
-  {t:"Yesterday",a:"The Beatles",y:1965,g:["pop","rock"],e:"60s",pop:5,vid:"NrgmdOz227I"},
-  {t:"Suspicious Minds",a:"Elvis Presley",y:1969,g:["pop","rock"],e:"60s",pop:4,vid:"e7qQ6_RV4VQ"},
-  {t:"I Heard It Through the Grapevine",a:"Marvin Gaye",y:1968,g:["rnb"],e:"60s",pop:4,vid:"uf_9nPFUOfs"},
-  {t:"Fortunate Son",a:"Creedence Clearwater Revival",y:1969,g:["rock"],e:"60s",pop:4,vid:"ec0XKhAHR5I"},
-  {t:"California Dreamin",a:"The Mamas and The Papas",y:1965,g:["folk","pop"],e:"60s",pop:4,vid:"N-aK6JnyFmk"},
-  {t:"The Sound of Silence",a:"Simon and Garfunkel",y:1964,g:["folk","rock"],e:"60s",pop:4,vid:"4zLfCnGVeL4"},
-  {t:"Fly Me to the Moon",a:"Frank Sinatra",y:1964,g:["jazz","pop"],e:"60s",pop:4,vid:"5yf_d_5eAXE"},
-  {t:"My Generation",a:"The Who",y:1965,g:["rock","punk"],e:"60s",pop:3,vid:"594GgUMF7nQ"},
-  {t:"Bohemian Rhapsody",a:"Queen",y:1975,g:["rock"],e:"70s",pop:5,vid:"fJ9rUzIMcZQ"},
-  {t:"Hotel California",a:"Eagles",y:1977,g:["rock"],e:"70s",pop:5,vid:"BciS5krYL80"},
-  {t:"Superstition",a:"Stevie Wonder",y:1972,g:["rnb","funk"],e:"70s",pop:5,vid:"0CFuCYNx-1g"},
-  {t:"Stayin Alive",a:"Bee Gees",y:1977,g:["disco","pop"],e:"70s",pop:5,vid:"fNFzfwLM72c"},
-  {t:"Dreams",a:"Fleetwood Mac",y:1977,g:["rock","pop"],e:"70s",pop:5,vid:"mrZRURcb1cM"},
-  {t:"Born to Run",a:"Bruce Springsteen",y:1975,g:["rock"],e:"70s",pop:4,vid:"IHaFZgYQDDM"},
-  {t:"Roxanne",a:"The Police",y:1978,g:["rock","reggae"],e:"70s",pop:4,vid:"3T1c7GkzRQQ"},
-  {t:"Dancing Queen",a:"ABBA",y:1976,g:["pop","disco"],e:"70s",pop:5,vid:"xFrGuyw1V8s"},
-  {t:"We Are the Champions",a:"Queen",y:1977,g:["rock"],e:"70s",pop:5,vid:"04854XqcfBY"},
-  {t:"Comfortably Numb",a:"Pink Floyd",y:1979,g:["rock"],e:"70s",pop:4,vid:"_FrOQC-zEog"},
-  {t:"September",a:"Earth Wind and Fire",y:1978,g:["rnb","disco","funk"],e:"70s",pop:5,vid:"Gs069dndIYk"},
-  {t:"Le Freak",a:"Chic",y:1978,g:["disco","funk"],e:"70s",pop:3,vid:"SXNsrqVEsYE"},
-  {t:"Rapper's Delight",a:"Sugarhill Gang",y:1979,g:["hiphop"],e:"70s",pop:4,vid:"rKTUAESacQM"},
-  {t:"Stairway to Heaven",a:"Led Zeppelin",y:1971,g:["rock"],e:"70s",pop:5,vid:"QkF3oxziUI4"},
-  {t:"Jolene",a:"Dolly Parton",y:1973,g:["country"],e:"70s",pop:4,vid:"Ixrje2rXLMA"},
-  {t:"Don't Stop Me Now",a:"Queen",y:1978,g:["rock","pop"],e:"70s",pop:5,vid:"HgzGwKwLmgM"},
-  {t:"Highway to Hell",a:"ACDC",y:1979,g:["rock","metal"],e:"70s",pop:5,vid:"lo2bC5GPJl8"},
-  {t:"Paranoid",a:"Black Sabbath",y:1970,g:["metal","rock"],e:"70s",pop:3,vid:"0qanF-qlbBs"},
-  {t:"Sweet Child O Mine",a:"Guns N Roses",y:1988,g:["rock","metal"],e:"80s",pop:5,vid:"1w7OgIMMRc4"},
-  {t:"Take On Me",a:"a-ha",y:1985,g:["pop"],e:"80s",pop:5,vid:"djV11Xbc914"},
-  {t:"Billie Jean",a:"Michael Jackson",y:1983,g:["pop","rnb"],e:"80s",pop:5,vid:"Zi_XLOBDo_Y"},
-  {t:"Girls Just Want to Have Fun",a:"Cyndi Lauper",y:1983,g:["pop"],e:"80s",pop:5,vid:"PIb6AZdTr-A"},
-  {t:"Don't You Forget About Me",a:"Simple Minds",y:1985,g:["rock","pop"],e:"80s",pop:5,vid:"CdqoNKCCt7A"},
-  {t:"Like a Prayer",a:"Madonna",y:1989,g:["pop"],e:"80s",pop:5,vid:"79fzeNUqsbY"},
-  {t:"Every Breath You Take",a:"The Police",y:1983,g:["rock","pop"],e:"80s",pop:5,vid:"OMOGaugKpzs"},
-  {t:"With or Without You",a:"U2",y:1987,g:["rock"],e:"80s",pop:5,vid:"ujNeHIgTBZg"},
-  {t:"Purple Rain",a:"Prince",y:1984,g:["pop","rnb","rock"],e:"80s",pop:5,vid:"TvnYmWpD_T8"},
-  {t:"Thriller",a:"Michael Jackson",y:1982,g:["pop","rnb"],e:"80s",pop:5,vid:"sOnqjkJTMaA"},
-  {t:"Don't Stop Believin",a:"Journey",y:1981,g:["rock"],e:"80s",pop:5,vid:"1k8craCGpgs"},
-  {t:"Africa",a:"Toto",y:1982,g:["rock","pop"],e:"80s",pop:5,vid:"FTQbiNvZqaY"},
-  {t:"Running Up That Hill",a:"Kate Bush",y:1985,g:["pop","rock"],e:"80s",pop:5,vid:"wp43OdtAAkM"},
-  {t:"Sweet Dreams",a:"Eurythmics",y:1983,g:["pop","electronic"],e:"80s",pop:5,vid:"qeMFqkcPYcg"},
-  {t:"Eye of the Tiger",a:"Survivor",y:1982,g:["rock"],e:"80s",pop:5,vid:"btPJPFnesV4"},
-  {t:"Beat It",a:"Michael Jackson",y:1982,g:["pop","rock"],e:"80s",pop:5,vid:"oRdxUFDoQe0"},
-  {t:"Livin on a Prayer",a:"Bon Jovi",y:1986,g:["rock"],e:"80s",pop:5,vid:"lDK9QqIzhwk"},
-  {t:"Welcome to the Jungle",a:"Guns N Roses",y:1987,g:["rock","metal"],e:"80s",pop:5,vid:"o1tj2zJ2Wvg"},
-  {t:"Back in Black",a:"ACDC",y:1980,g:["rock","metal"],e:"80s",pop:5,vid:"pAgnJDJN4VA"},
-  {t:"Master of Puppets",a:"Metallica",y:1986,g:["metal"],e:"80s",pop:3,vid:"E0ozmU9cTDw"},
-  {t:"Come On Eileen",a:"Dexys Midnight Runners",y:1982,g:["pop"],e:"80s",pop:4,vid:"qPBHKvBTXKQ"},
-  {t:"Tainted Love",a:"Soft Cell",y:1981,g:["electronic","pop"],e:"80s",pop:4,vid:"XZVpR3iBSVg"},
-  {t:"Total Eclipse of the Heart",a:"Bonnie Tyler",y:1983,g:["pop","rock"],e:"80s",pop:5,vid:"lcOxIFDTBMc"},
-  {t:"Fast Car",a:"Tracy Chapman",y:1988,g:["folk","pop"],e:"80s",pop:4,vid:"AIOAlaAuV2s"},
-  {t:"Everybody Wants to Rule the World",a:"Tears for Fears",y:1985,g:["pop","rock"],e:"80s",pop:4,vid:"ycc3MTCzx-E"},
-  {t:"Pour Some Sugar on Me",a:"Def Leppard",y:1987,g:["rock","metal"],e:"80s",pop:4,vid:"CcGGRj0S01Q"},
-  {t:"Smells Like Teen Spirit",a:"Nirvana",y:1991,g:["rock","alt"],e:"90s",pop:5,vid:"hTWKbfoikeg"},
-  {t:"Baby Got Back",a:"Sir Mix-a-Lot",y:1992,g:["hiphop"],e:"90s",pop:5,vid:"reTx5sqvVJ4"},
-  {t:"Waterfalls",a:"TLC",y:1995,g:["rnb","pop"],e:"90s",pop:5,vid:"8WEtxJ4-sh4"},
-  {t:"Losing My Religion",a:"REM",y:1991,g:["alt","rock"],e:"90s",pop:4,vid:"if-UzXIQ5vw"},
-  {t:"Wannabe",a:"Spice Girls",y:1996,g:["pop"],e:"90s",pop:5,vid:"gJLIiF15wjQ"},
-  {t:"No Scrubs",a:"TLC",y:1999,g:["rnb","pop"],e:"90s",pop:5,vid:"FrLequ6dUdM"},
-  {t:"Creep",a:"Radiohead",y:1992,g:["alt","rock"],e:"90s",pop:4,vid:"XFkzRNyygfk"},
-  {t:"Enter Sandman",a:"Metallica",y:1991,g:["metal"],e:"90s",pop:4,vid:"CD-E5TBprUU"},
-  {t:"Under the Bridge",a:"Red Hot Chili Peppers",y:1992,g:["rock","alt"],e:"90s",pop:4,vid:"glen8VMXxr8"},
-  {t:"Black Hole Sun",a:"Soundgarden",y:1994,g:["rock","alt"],e:"90s",pop:3,vid:"3mbBbFH9fAg"},
-  {t:"Everlong",a:"Foo Fighters",y:1997,g:["rock","alt"],e:"90s",pop:4,vid:"eBG7P-K-r1Y"},
-  {t:"Gangsta's Paradise",a:"Coolio",y:1995,g:["hiphop"],e:"90s",pop:5,vid:"fPO76Jlnz6c"},
-  {t:"Killing Me Softly",a:"Fugees",y:1996,g:["hiphop","rnb"],e:"90s",pop:4,vid:"_O4E0wZRShs"},
-  {t:"Iris",a:"Goo Goo Dolls",y:1998,g:["rock","pop"],e:"90s",pop:5,vid:"NdYWuo9OFAw"},
-  {t:"Believe",a:"Cher",y:1998,g:["pop","electronic"],e:"90s",pop:5,vid:"nZXRV4MezEw"},
-  {t:"All I Want for Christmas Is You",a:"Mariah Carey",y:1994,g:["pop"],e:"90s",pop:5,vid:"aAkMkVFwAoo"},
-  {t:"Dammit",a:"blink-182",y:1997,g:["punk","rock"],e:"90s",pop:3,vid:"i3K91lH8dOg"},
-  {t:"All the Small Things",a:"blink-182",y:1999,g:["punk","rock"],e:"90s",pop:4,vid:"9Ht5RZpzPqw"},
-  {t:"What Is Love",a:"Haddaway",y:1993,g:["electronic","pop"],e:"90s",pop:5,vid:"HEXWRTEbj1I"},
-  {t:"Blue",a:"Eiffel 65",y:1998,g:["electronic","pop"],e:"90s",pop:5,vid:"68ugkg9re0U"},
-  {t:"Sandstorm",a:"Darude",y:1999,g:["electronic","house"],e:"90s",pop:5,vid:"y6120QOlsfU"},
-  {t:"Killing in the Name",a:"Rage Against the Machine",y:1992,g:["metal","rock","hiphop"],e:"90s",pop:4,vid:"bWXazVevoyA"},
-  {t:"Friends in Low Places",a:"Garth Brooks",y:1990,g:["country"],e:"90s",pop:4,vid:"8rGG8O0xKK8"},
-  {t:"Man I Feel Like a Woman",a:"Shania Twain",y:1999,g:["country","pop"],e:"90s",pop:4,vid:"UN8XNBs7nAA"},
-  {t:"Semi-Charmed Life",a:"Third Eye Blind",y:1997,g:["alt","rock"],e:"90s",pop:3,vid:"sWpXV4AXW-Q"},
-  {t:"Stay",a:"Lisa Loeb",y:1994,g:["alt","folk"],e:"90s",pop:3,vid:"MshrMcQQCdY"},
-  {t:"Crazy in Love",a:"Beyonce",y:2003,g:["pop","rnb"],e:"2000s",pop:5,vid:"ViwtNLUqkMY"},
-  {t:"Yeah!",a:"Usher",y:2004,g:["rnb","pop"],e:"2000s",pop:5,vid:"GxBSyx85Kp8"},
-  {t:"Hey Ya!",a:"OutKast",y:2003,g:["hiphop","pop"],e:"2000s",pop:5,vid:"PWgvGjAhvIw"},
-  {t:"Since U Been Gone",a:"Kelly Clarkson",y:2004,g:["pop","rock"],e:"2000s",pop:5,vid:"Cb-YfAOmEow"},
-  {t:"Toxic",a:"Britney Spears",y:2004,g:["pop"],e:"2000s",pop:5,vid:"LOZuxwVk7TU"},
-  {t:"In Da Club",a:"50 Cent",y:2003,g:["hiphop"],e:"2000s",pop:5,vid:"5qm8PH4xAss"},
-  {t:"Lose Yourself",a:"Eminem",y:2002,g:["hiphop"],e:"2000s",pop:5,vid:"_Yhyp-_hX2s"},
-  {t:"Clocks",a:"Coldplay",y:2002,g:["alt","rock"],e:"2000s",pop:4,vid:"d020hcWA_Ww"},
-  {t:"Seven Nation Army",a:"The White Stripes",y:2003,g:["rock","alt"],e:"2000s",pop:5,vid:"0J2QdDbelmY"},
-  {t:"Numb",a:"Linkin Park",y:2003,g:["rock","metal"],e:"2000s",pop:5,vid:"kXYiU_JCYtU"},
-  {t:"Mr Brightside",a:"The Killers",y:2003,g:["alt","rock"],e:"2000s",pop:5,vid:"gGdGFtwCNBE"},
-  {t:"Boulevard of Broken Dreams",a:"Green Day",y:2004,g:["rock","punk"],e:"2000s",pop:5,vid:"Soa3gO7tL-c"},
-  {t:"Poker Face",a:"Lady Gaga",y:2008,g:["pop","electronic"],e:"2000s",pop:5,vid:"bESGLojNYSo"},
-  {t:"Single Ladies",a:"Beyonce",y:2008,g:["pop","rnb"],e:"2000s",pop:5,vid:"4m1EFMoRFvY"},
-  {t:"Gold Digger",a:"Kanye West",y:2005,g:["hiphop"],e:"2000s",pop:5,vid:"6vwNcNOTVzY"},
-  {t:"Umbrella",a:"Rihanna",y:2007,g:["pop","rnb"],e:"2000s",pop:5,vid:"CvBfHwUxHIk"},
-  {t:"One More Time",a:"Daft Punk",y:2000,g:["electronic","house"],e:"2000s",pop:5,vid:"FGBhQbmPwH8"},
-  {t:"Stan",a:"Eminem",y:2000,g:["hiphop"],e:"2000s",pop:4,vid:"bXkqSBBAAIA"},
-  {t:"Before He Cheats",a:"Carrie Underwood",y:2005,g:["country"],e:"2000s",pop:4,vid:"b7HxM-3dObM"},
-  {t:"Complicated",a:"Avril Lavigne",y:2002,g:["punk","pop"],e:"2000s",pop:5,vid:"5NPBIwQyPWE"},
-  {t:"Sk8er Boi",a:"Avril Lavigne",y:2002,g:["punk","pop"],e:"2000s",pop:5,vid:"TIHRcSXaIYA"},
-  {t:"American Idiot",a:"Green Day",y:2004,g:["punk","rock"],e:"2000s",pop:5,vid:"Ee_uujKuJMI"},
-  {t:"Helena",a:"My Chemical Romance",y:2004,g:["rock","punk"],e:"2000s",pop:4,vid:"UCIjxZpBSyE"},
-  {t:"Welcome to the Black Parade",a:"My Chemical Romance",y:2006,g:["rock","punk"],e:"2000s",pop:5,vid:"RRKJiM9Njr8"},
-  {t:"Sugar Were Goin Down",a:"Fall Out Boy",y:2005,g:["rock","punk"],e:"2000s",pop:4,vid:"h0rkB-4hJhc"},
-  {t:"Misery Business",a:"Paramore",y:2007,g:["rock","punk"],e:"2000s",pop:4,vid:"aCyGvGEtOwc"},
-  {t:"Chop Suey",a:"System of a Down",y:2001,g:["metal","rock"],e:"2000s",pop:4,vid:"CSvFpBOe8eY"},
-  {t:"Gasolina",a:"Daddy Yankee",y:2004,g:["latin","reggae"],e:"2000s",pop:4,vid:"CCRncAuBhSQ"},
-  {t:"Hips Don't Lie",a:"Shakira",y:2005,g:["latin","pop"],e:"2000s",pop:5,vid:"DUT5rEU6pqM"},
-  {t:"Tik Tok",a:"Kesha",y:2009,g:["pop","electronic"],e:"2000s",pop:5,vid:"iP6XpLQM2Cs"},
-  {t:"Harder Better Faster Stronger",a:"Daft Punk",y:2001,g:["electronic","house"],e:"2000s",pop:4,vid:"gAjR4_CbPpQ"},
-  {t:"Blinding Lights",a:"The Weeknd",y:2019,g:["pop","rnb"],e:"2010s",pop:5,vid:"4NRXx6U8ABQ"},
-  {t:"Shape of You",a:"Ed Sheeran",y:2017,g:["pop"],e:"2010s",pop:5,vid:"JGwWNGJdvx8"},
-  {t:"Rolling in the Deep",a:"Adele",y:2010,g:["pop","rnb"],e:"2010s",pop:5,vid:"rYEDA3JcQqw"},
-  {t:"Uptown Funk",a:"Bruno Mars",y:2014,g:["pop","funk"],e:"2010s",pop:5,vid:"OPf0YbXqDm0"},
-  {t:"Old Town Road",a:"Lil Nas X",y:2019,g:["hiphop","country"],e:"2010s",pop:5,vid:"w2Ov5jzm3j8"},
-  {t:"Call Me Maybe",a:"Carly Rae Jepsen",y:2012,g:["pop"],e:"2010s",pop:5,vid:"fWNaR-rxAic"},
-  {t:"Royals",a:"Lorde",y:2013,g:["pop","alt"],e:"2010s",pop:4,vid:"nlcIKh6oBl8"},
-  {t:"Happy",a:"Pharrell Williams",y:2013,g:["pop","rnb"],e:"2010s",pop:5,vid:"ZbZSe6N_BXs"},
-  {t:"Get Lucky",a:"Daft Punk",y:2013,g:["electronic","funk","pop"],e:"2010s",pop:5,vid:"5NV6Rdv1h3Q"},
-  {t:"Shake It Off",a:"Taylor Swift",y:2014,g:["pop"],e:"2010s",pop:5,vid:"nfWlot6h_JM"},
-  {t:"Bad Guy",a:"Billie Eilish",y:2019,g:["pop","alt"],e:"2010s",pop:5,vid:"DyDfgMOUjCI"},
-  {t:"HUMBLE.",a:"Kendrick Lamar",y:2017,g:["hiphop"],e:"2010s",pop:4,vid:"tvTRZJ-4EyI"},
-  {t:"Despacito",a:"Luis Fonsi",y:2017,g:["latin","pop"],e:"2010s",pop:5,vid:"ktvTqknDobU"},
-  {t:"Someone Like You",a:"Adele",y:2011,g:["pop"],e:"2010s",pop:5,vid:"hLQl3WQQoQ0"},
-  {t:"Gangnam Style",a:"PSY",y:2012,g:["kpop","pop"],e:"2010s",pop:5,vid:"9bZkp7q19f0"},
-  {t:"Chandelier",a:"Sia",y:2014,g:["pop"],e:"2010s",pop:5,vid:"2vjPBrBU-TM"},
-  {t:"Levels",a:"Avicii",y:2011,g:["edm","electronic"],e:"2010s",pop:5,vid:"_ovdm2yX4MA"},
-  {t:"Wake Me Up",a:"Avicii",y:2013,g:["edm","folk"],e:"2010s",pop:5,vid:"IcrbM1l_BoI"},
-  {t:"Animals",a:"Martin Garrix",y:2013,g:["edm","house"],e:"2010s",pop:4,vid:"gCYcHz2k5x0"},
-  {t:"Clarity",a:"Zedd",y:2012,g:["edm","pop"],e:"2010s",pop:4,vid:"IxxstCcJlSc"},
-  {t:"Summer",a:"Calvin Harris",y:2014,g:["edm","pop"],e:"2010s",pop:5,vid:"ebXbLfLACGM"},
-  {t:"Titanium",a:"David Guetta",y:2011,g:["edm","pop"],e:"2010s",pop:5,vid:"JRfuAukYTKg"},
-  {t:"Somebody That I Used to Know",a:"Gotye",y:2011,g:["alt","pop"],e:"2010s",pop:5,vid:"8UVNT4wvIGY"},
-  {t:"Thrift Shop",a:"Macklemore",y:2012,g:["hiphop","pop"],e:"2010s",pop:5,vid:"QK8mJJJvaes"},
-  {t:"Radioactive",a:"Imagine Dragons",y:2012,g:["rock","alt"],e:"2010s",pop:5,vid:"ktvTqknDobU"},
-  {t:"Take Me to Church",a:"Hozier",y:2013,g:["alt","folk"],e:"2010s",pop:4,vid:"MYSVMgRr6pw"},
-  {t:"Lean On",a:"Major Lazer",y:2015,g:["edm","pop"],e:"2010s",pop:5,vid:"YqeW9_5kURI"},
-  {t:"God's Plan",a:"Drake",y:2018,g:["hiphop","rnb"],e:"2010s",pop:5,vid:"xpVfcZ0ZcFM"},
-  {t:"Sicko Mode",a:"Travis Scott",y:2018,g:["hiphop"],e:"2010s",pop:5,vid:"6ONRf7h3Mdk"},
-  {t:"Hotline Bling",a:"Drake",y:2015,g:["hiphop","rnb"],e:"2010s",pop:5,vid:"uxpDa-c-4Mc"},
-  {t:"Bodak Yellow",a:"Cardi B",y:2017,g:["hiphop"],e:"2010s",pop:4,vid:"PDAh0AZBHBQ"},
-  {t:"thank u next",a:"Ariana Grande",y:2018,g:["pop","rnb"],e:"2010s",pop:5,vid:"gl1aHhXnN1k"},
-  {t:"7 Rings",a:"Ariana Grande",y:2019,g:["pop","rnb"],e:"2010s",pop:5,vid:"QYh6mYIJG2Y"},
-  {t:"Cruise",a:"Florida Georgia Line",y:2012,g:["country"],e:"2010s",pop:4,vid:"5zpgHKPqiNs"},
-  {t:"Tennessee Whiskey",a:"Chris Stapleton",y:2015,g:["country","rnb"],e:"2010s",pop:4,vid:"4zAThXFOy2E"},
-  {t:"Thinking Out Loud",a:"Ed Sheeran",y:2014,g:["pop"],e:"2010s",pop:5,vid:"lp-EO5I60KA"},
-  {t:"Perfect",a:"Ed Sheeran",y:2017,g:["pop"],e:"2010s",pop:5,vid:"2Vv-BfVoq4g"},
-  {t:"Rockstar",a:"Post Malone",y:2017,g:["hiphop","rock"],e:"2010s",pop:5,vid:"UceaB4D0jpo"},
-  {t:"Sunflower",a:"Post Malone",y:2018,g:["pop","hiphop"],e:"2010s",pop:5,vid:"ApXoWvfEYVU"},
-  {t:"Circles",a:"Post Malone",y:2019,g:["pop"],e:"2010s",pop:5,vid:"wXhTHyIgQ_U"},
-  {t:"Senorita",a:"Shawn Mendes and Camila Cabello",y:2019,g:["pop","latin"],e:"2010s",pop:5,vid:"Pkh8UtuejGw"},
-  {t:"Levitating",a:"Dua Lipa",y:2020,g:["pop","electronic"],e:"2020s",pop:5,vid:"TUVcZfQe-Kw"},
-  {t:"Butter",a:"BTS",y:2021,g:["kpop","pop"],e:"2020s",pop:5,vid:"WMweEpGlu_U"},
-  {t:"Good 4 U",a:"Olivia Rodrigo",y:2021,g:["pop","punk"],e:"2020s",pop:5,vid:"gNi_6U5Pm_o"},
-  {t:"As It Was",a:"Harry Styles",y:2022,g:["pop"],e:"2020s",pop:5,vid:"H5v3kku4y6Q"},
-  {t:"Flowers",a:"Miley Cyrus",y:2023,g:["pop"],e:"2020s",pop:5,vid:"G7KNmW9a75Y"},
-  {t:"Heat Waves",a:"Glass Animals",y:2020,g:["alt","pop"],e:"2020s",pop:5,vid:"mRD0-GxOHMY"},
-  {t:"Drivers License",a:"Olivia Rodrigo",y:2021,g:["pop"],e:"2020s",pop:5,vid:"ZmDBbnmKpqQ"},
-  {t:"Anti-Hero",a:"Taylor Swift",y:2022,g:["pop"],e:"2020s",pop:5,vid:"b1kbLwvqugk"},
-  {t:"Cruel Summer",a:"Taylor Swift",y:2019,g:["pop"],e:"2020s",pop:5,vid:"ic8j13piAhQ"},
-  {t:"Espresso",a:"Sabrina Carpenter",y:2024,g:["pop"],e:"2020s",pop:5,vid:"eVli-NN3H9E"},
-  {t:"Paint The Town Red",a:"Doja Cat",y:2023,g:["hiphop","pop"],e:"2020s",pop:5,vid:"e3XQbHYp4K0"},
-  {t:"Rich Flex",a:"Drake and 21 Savage",y:2022,g:["hiphop"],e:"2020s",pop:5,vid:"CSvFpBOe8eY"},
-  {t:"About Damn Time",a:"Lizzo",y:2022,g:["pop","funk"],e:"2020s",pop:5,vid:"IXXxciRUMzE"},
-  {t:"Vampire",a:"Olivia Rodrigo",y:2023,g:["pop","alt"],e:"2020s",pop:5,vid:"RlPNh_PBZb4"},
-  {t:"Easy On Me",a:"Adele",y:2021,g:["pop"],e:"2020s",pop:5,vid:"U3ASj1L6_sY"},
-  {t:"Stay",a:"Kid Laroi and Justin Bieber",y:2021,g:["pop"],e:"2020s",pop:5,vid:"hknbCMwOINQ"},
-  {t:"Montero",a:"Lil Nas X",y:2021,g:["hiphop","pop"],e:"2020s",pop:5,vid:"6swmTBVI83k"},
-  {t:"Unholy",a:"Sam Smith and Kim Petras",y:2022,g:["pop","electronic"],e:"2020s",pop:5,vid:"mw3KsHxBtYE"},
-  {t:"Kill Bill",a:"SZA",y:2022,g:["rnb","pop"],e:"2020s",pop:5,vid:"ho36PNhqtJ4"},
-  {t:"Ella Baila Sola",a:"Eslabon Armado",y:2023,g:["latin"],e:"2020s",pop:4,vid:"vKBMz7vGMmQ"},
-];
+const ITUNES_GENRE_MAP = {
+  'pop':'14','hip-hop':'18','r-b-soul':'15','rock':'21','alternative':'20',
+  'metal':'1153','punk':'1223','country':'6','folk':'16','jazz':'11',
+  'blues':'2','classical':'5','electronic':'7','house':'1026','edm':'1026',
+  'disco':'17','reggae':'24','latin':'12','k-pop':'51','j-pop':'27',
+  'gospel':'22','new-age':'13','soundtrack':'10','world-music':'19',
+  'afrobeats':'1286','ska':'1224','grunge':'1222','emo':'1220','trap':'1279','drill':'1280',
+};
 
-// ── State ──────────────────────────────────────────────────────
-let selEra='any', selGenre='any', selDiff='easy';
+// ── State ───────────────────────────────────────────────────────
+let selGenre='pop', selEra='', selDiff='easy', startOffset=0;
 let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
-let waveAnim=null, tickTO=null, stopTO=null;
+let audio=null, waveAnim=null, tickTO=null, stopTO=null;
 let stats={c:0,s:0,p:0};
-let used=new Set();
-let ytPlayer=null, ytReady=false, ytLoaded=false;
+let songPool=[], poolOffset=0;
+let searchCache={};
 
-function getClips(){ return DIFFS[selDiff].clips; }
+// ── iTunes API ──────────────────────────────────────────────────
+async function fetchSongs(genre, era){
+  const cacheKey=genre+'|'+era;
+  if(searchCache[cacheKey]) return searchCache[cacheKey];
 
-function getPool(){
-  return DB.filter(s=>{
-    const eOk=selEra==='any'||s.e===selEra;
-    const gOk=selGenre==='any'||s.g.includes(selGenre);
-    if(!eOk||!gOk)return false;
-    if(selDiff==='easy')return s.pop>=5;
-    if(selDiff==='medium')return s.pop>=4;
-    if(selDiff==='hard')return s.pop>=3;
-    if(selDiff==='expert')return s.pop>=2;
-    return true;
-  });
-}
+  setStatus('Finding songs...');
+  const genreId = ITUNES_GENRE_MAP[genre]||'14';
 
-function pick(){
-  const pool=getPool();
-  const src=pool.length?pool:DB;
-  const avail=src.filter(s=>!used.has(s.t+'|'+s.a));
-  const from=avail.length?avail:src;
-  return from[Math.floor(Math.random()*from.length)];
-}
+  // Build search terms for different eras
+  const eraTerms = {
+    '1950':'1950s','1960':'1960s','1970':'1970s','1980':'1980s',
+    '1990':'1990s','2000':'2000s','2010':'2010s','2020':'2020s'
+  };
 
-// ── YouTube API ────────────────────────────────────────────────
-window.onYouTubeIframeAPIReady = function(){
-  ytReady=true;
-  ytPlayer = new YT.Player('yt-player',{
-    height:'1', width:'1',
-    playerVars:{autoplay:0, controls:0, modestbranding:1, rel:0, playsinline:1},
-    events:{
-      onReady: ()=>{
-        ytLoaded=true;
-        document.getElementById('loading-txt').textContent='';
-        if(curSong) loadVideo(curSong.vid);
-      },
-      onStateChange: e=>{
-        // YT.PlayerState.PLAYING = 1
-        if(e.data===1) document.getElementById('loading-txt').textContent='';
-      }
-    }
-  });
-};
+  let url;
+  if(era && eraTerms[era]){
+    url = `https://itunes.apple.com/search?term=${encodeURIComponent(eraTerms[era])}&mediaType=music&genreId=${genreId}&limit=200&entity=song`;
+  } else {
+    // No era filter — use broad genre search
+    const genreNames = {
+      'pop':'pop music','hip-hop':'hip hop rap','r-b-soul':'rnb soul',
+      'rock':'rock music','alternative':'alternative indie','metal':'heavy metal',
+      'punk':'punk rock','country':'country music','folk':'folk acoustic',
+      'jazz':'jazz music','blues':'blues music','classical':'classical music',
+      'electronic':'electronic dance','house':'house techno','edm':'edm electronic dance',
+      'disco':'disco funk','reggae':'reggae dancehall','latin':'latin music',
+      'k-pop':'kpop korean','j-pop':'jpop japanese','gospel':'gospel christian',
+      'new-age':'ambient new age','soundtrack':'movie soundtrack score',
+      'world-music':'world music','afrobeats':'afrobeats','ska':'ska music',
+      'grunge':'grunge','emo':'emo','trap':'trap music','drill':'drill music',
+    };
+    const term = genreNames[genre]||genre;
+    url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&mediaType=music&genreId=${genreId}&limit=200&entity=song`;
+  }
 
-function loadVideo(vid){
-  if(!ytLoaded||!ytPlayer) return;
-  ytPlayer.loadVideoById({videoId:vid, startSeconds:5});
-  ytPlayer.pauseVideo();
-}
-
-function stopYT(){
-  if(ytLoaded&&ytPlayer){try{ytPlayer.pauseVideo();}catch(e){}}
-}
-
-// ── Waveform ───────────────────────────────────────────────────
-function buildWave(){
-  const wf=document.getElementById('wf');
-  wf.innerHTML='';
-  for(let i=0;i<64;i++){
-    const b=document.createElement('div');
-    b.className='wb';
-    b.style.height=(8+Math.random()*84)+'%';
-    wf.appendChild(b);
+  try {
+    const res = await fetch(url + '&callback=', {mode:'cors'});
+    const data = await res.json();
+    const songs = (data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+    searchCache[cacheKey] = songs;
+    return songs;
+  } catch(e){
+    // Fallback: no genreId filter
+    try {
+      const fallback = `https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&mediaType=music&limit=100&entity=song`;
+      const res2 = await fetch(fallback);
+      const data2 = await res2.json();
+      const songs2 = (data2.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+      searchCache[cacheKey] = songs2;
+      return songs2;
+    } catch(e2){ return []; }
   }
 }
 
-function animWave(dur){
+async function searchForGuess(query){
+  if(!query) return [];
+  try {
+    const url=`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&mediaType=music&limit=12&entity=song`;
+    const res=await fetch(url);
+    const data=await res.json();
+    return (data.results||[]).filter(s=>s.trackName&&s.artistName);
+  } catch(e){ return []; }
+}
+
+// ── Audio ───────────────────────────────────────────────────────
+function stopAudio(){
+  if(audio){try{audio.pause();}catch(e){}}
+  clearTimeout(stopTO);clearTimeout(tickTO);clearInterval(waveAnim);
+  isPlaying=false;
+  document.getElementById('pbtn').innerHTML='&#9654;';
+  document.querySelectorAll('.wb').forEach(b=>b.classList.remove('p','a'));
+}
+
+function setStatus(txt){ document.getElementById('status-txt').textContent=txt||''; }
+
+async function playClip(){
+  if(!curSong) return;
+  if(isPlaying){stopAudio();return;}
+
+  const dur = DIFFS[selDiff].clips[clipIdx];
+
+  if(!audio || audio.dataset.src !== curSong.previewUrl){
+    audio = new Audio();
+    audio.crossOrigin='anonymous';
+    audio.dataset.src = curSong.previewUrl;
+    audio.src = curSong.previewUrl;
+    setStatus('Loading audio...');
+    try { await audio.load(); } catch(e){}
+  }
+
+  // Seek to start offset
+  const seekTo = startOffset;
+  audio.currentTime = seekTo;
+  setStatus('');
+
+  try { await audio.play(); } catch(e){ setStatus('Audio blocked — click again'); return; }
+
+  isPlaying=true;
+  document.getElementById('pbtn').innerHTML='&#9646;&#9646;';
+
+  // Waveform animation
   const bars=document.querySelectorAll('.wb');
   const n=bars.length;
   let elapsed=0;
@@ -464,28 +353,39 @@ function animWave(dur){
     const idx=Math.floor(prog*n);
     bars.forEach((b,i)=>{b.classList.remove('p','a');if(i<idx)b.classList.add('p');else if(i===idx)b.classList.add('a');});
   },50);
+
+  // Tick timer
+  let t=0;
+  const tick=()=>{t=Math.min(t+0.1,dur);document.getElementById('tcur').textContent=t.toFixed(1)+'s';if(t<dur)tickTO=setTimeout(tick,100);};
+  tick();
+
+  // Auto-stop after clip duration
+  stopTO=setTimeout(()=>{stopAudio();document.getElementById('tcur').textContent=dur.toFixed(1)+'s';},dur*1000);
 }
 
-function stopAnimWave(){
-  clearInterval(waveAnim);
-  document.querySelectorAll('.wb').forEach(b=>b.classList.remove('p','a'));
+// ── Waveform ────────────────────────────────────────────────────
+function buildWave(){
+  const wf=document.getElementById('wf');wf.innerHTML='';
+  for(let i=0;i<64;i++){
+    const b=document.createElement('div');b.className='wb';
+    b.style.height=(8+Math.random()*84)+'%';wf.appendChild(b);
+  }
 }
 
-// ── Clip management ────────────────────────────────────────────
+// ── Clips ───────────────────────────────────────────────────────
 function buildClips(){
-  const row=document.getElementById('clip-row');
-  row.innerHTML='';
-  getClips().forEach((s,i)=>{
+  const row=document.getElementById('clip-row');row.innerHTML='';
+  DIFFS[selDiff].clips.forEach((s,i)=>{
     const b=document.createElement('button');
     b.className='cp'+(i===0?' on cur':'');
     b.textContent=s+'s';
-    b.onclick=()=>{if(i<=clipIdx){clipIdx=i;updateClips();playClip();}};
+    b.onclick=()=>{if(i<=clipIdx){clipIdx=i;updateClips();stopAudio();playClip();}};
     row.appendChild(b);
   });
 }
 
 function updateClips(){
-  const clips=getClips();
+  const clips=DIFFS[selDiff].clips;
   document.querySelectorAll('.cp').forEach((b,i)=>{
     b.className='cp'+(i<clipIdx?' on done':i===clipIdx?' on cur':'');
   });
@@ -493,52 +393,9 @@ function updateClips(){
   document.getElementById('ttot').textContent='of '+clips[clipIdx]+'s';
 }
 
-function stopPlay(){
-  clearTimeout(stopTO);clearTimeout(tickTO);clearInterval(waveAnim);
-  stopYT();
-  isPlaying=false;
-  document.getElementById('pbtn').innerHTML='&#9654;';
-  stopAnimWave();
-}
-
-function playClip(){
-  if(!curSong)return;
-  if(isPlaying){stopPlay();return;}
-  if(!ytLoaded){
-    document.getElementById('loading-txt').textContent='Loading audio...';
-    return;
-  }
-  const dur=getClips()[clipIdx];
-  isPlaying=true;
-  document.getElementById('pbtn').innerHTML='&#9646;&#9646;';
-  document.getElementById('loading-txt').textContent='';
-
-  // Seek to 5s and play
-  try{
-    ytPlayer.seekTo(5, true);
-    ytPlayer.playVideo();
-  }catch(e){}
-
-  animWave(dur);
-
-  let t=0;
-  const tick=()=>{
-    t=Math.min(t+0.1, dur);
-    document.getElementById('tcur').textContent=t.toFixed(1)+'s';
-    if(t<dur) tickTO=setTimeout(tick, 100);
-  };
-  tick();
-
-  stopTO=setTimeout(()=>{
-    stopPlay();
-    document.getElementById('tcur').textContent=dur.toFixed(1)+'s';
-  }, dur*1000);
-}
-
-// ── Guesses ────────────────────────────────────────────────────
+// ── Guesses ─────────────────────────────────────────────────────
 function renderGuesses(){
-  const l=document.getElementById('glist');
-  l.innerHTML='';
+  const l=document.getElementById('glist');l.innerHTML='';
   guesses.forEach(g=>{
     const d=document.createElement('div');
     d.className='gi '+(g.sk?'sk':'wr');
@@ -547,45 +404,66 @@ function renderGuesses(){
   });
 }
 
-// ── Search ─────────────────────────────────────────────────────
+// ── Search (live iTunes) ────────────────────────────────────────
+let searchTO=null;
 function buildSearch(){
   const inp=document.getElementById('ginput');
   const dd=document.getElementById('sdrop');
   inp.value='';dd.style.display='none';
   inp.oninput=()=>{
-    const q=inp.value.toLowerCase().trim();
+    clearTimeout(searchTO);
+    const q=inp.value.trim();
     if(!q){dd.style.display='none';return;}
-    const matches=DB.filter(s=>s.t.toLowerCase().includes(q)||s.a.toLowerCase().includes(q)).slice(0,9);
-    if(!matches.length){dd.style.display='none';return;}
-    dd.innerHTML='';dd.style.display='block';
-    matches.forEach(s=>{
-      const item=document.createElement('div');
-      item.className='sdi';
-      item.innerHTML=`<div class="sdi-t">${s.t}</div><div class="sdi-m">${s.a} &bull; ${s.y}</div>`;
-      item.onclick=()=>{inp.value=s.t+' \u2014 '+s.a;dd.style.display='none';};
-      dd.appendChild(item);
-    });
+    // First search local pool for instant results
+    const localMatches=songPool.filter(s=>{
+      const title=(s.trackName||'').toLowerCase();
+      const artist=(s.artistName||'').toLowerCase();
+      return title.includes(q.toLowerCase())||artist.includes(q.toLowerCase());
+    }).slice(0,5);
+    showDropdown(localMatches, dd);
+    // Then fetch from iTunes for more results
+    searchTO=setTimeout(async()=>{
+      const results=await searchForGuess(q);
+      showDropdown(results.slice(0,9), dd);
+    }, 400);
   };
 }
 
+function showDropdown(songs, dd){
+  if(!songs.length){dd.style.display='none';return;}
+  dd.innerHTML='';dd.style.display='block';
+  songs.forEach(s=>{
+    const item=document.createElement('div');item.className='sdi';
+    item.innerHTML=`<div class="sdi-t">${s.trackName}</div><div class="sdi-m">${s.artistName} &bull; ${s.collectionName||''}</div>`;
+    item.onclick=()=>{
+      document.getElementById('ginput').value=s.trackName+' \u2014 '+s.artistName;
+      dd.style.display='none';
+    };
+    dd.appendChild(item);
+  });
+}
+
+// ── Game logic ──────────────────────────────────────────────────
 function skip(){
-  guesses.push({sk:true});renderGuesses();stopPlay();
-  const clips=getClips();
+  guesses.push({sk:true});renderGuesses();stopAudio();
+  const clips=DIFFS[selDiff].clips;
   if(clipIdx<clips.length-1){clipIdx++;updateClips();}
   else endGame(false);
   document.getElementById('ginput').value='';
   document.getElementById('sdrop').style.display='none';
 }
 
-function guess(){
+function doGuess(){
   const val=document.getElementById('ginput').value.trim();
   if(!val)return;
-  const won=val.toLowerCase().includes(curSong.t.toLowerCase())||
-            curSong.t.toLowerCase().includes(val.toLowerCase().split('\u2014')[0].trim());
-  if(won){stopPlay();endGame(true);}
+  const title=curSong.trackName.toLowerCase();
+  const input=val.toLowerCase().split('\u2014')[0].trim();
+  const won=title.includes(input)||input.includes(title)||
+            (input.length>3&&title.replace(/[^a-z0-9]/g,'').includes(input.replace(/[^a-z0-9]/g,'')));
+  if(won){stopAudio();endGame(true);}
   else{
-    guesses.push({text:val,sk:false});renderGuesses();stopPlay();
-    const clips=getClips();
+    guesses.push({text:val,sk:false});renderGuesses();stopAudio();
+    const clips=DIFFS[selDiff].clips;
     if(clipIdx<clips.length-1){clipIdx++;updateClips();}
     else endGame(false);
     document.getElementById('ginput').value='';
@@ -593,70 +471,131 @@ function guess(){
   }
 }
 
-// ── End game ───────────────────────────────────────────────────
 function endGame(won){
-  stopPlay();
+  stopAudio();
   stats.p++;if(won){stats.c++;stats.s++;}else stats.s=0;
   document.getElementById('sc').textContent=stats.c;
   document.getElementById('ss').textContent=stats.s;
   document.getElementById('sp').textContent=stats.p;
-  used.add(curSong.t+'|'+curSong.a);
   document.getElementById('game-area').style.display='none';
   const attempts=guesses.length+(won?1:0);
+  const art=curSong.artworkUrl100||(curSong.artworkUrl60||'');
+  const bigArt=art.replace('100x100','300x300');
   const ra=document.getElementById('result-area');
   ra.style.display='block';
   ra.innerHTML=`<div class="rcard">
-    <div class="rico">${won?'🎵':'😐'}</div>
-    <div class="rsong">${curSong.t}</div>
-    <div class="rart">${curSong.a} &bull; ${curSong.y}</div>
+    ${bigArt?`<img class="album-art" src="${bigArt}" alt="Album art"/>`:''}
+    <div class="rsong">${curSong.trackName}</div>
+    <div class="rart">${curSong.artistName} &bull; ${curSong.collectionName||''}</div>
     <div class="rbadges">
       ${won?`<span class="rb rb-g">Got it in ${attempts} guess${attempts!==1?'es':''}</span>`:'<span class="rb rb-r">Missed this one</span>'}
-      <span class="rb rb-n">Clip: ${getClips()[clipIdx]}s</span>
+      <span class="rb rb-n">Clip: ${DIFFS[selDiff].clips[clipIdx]}s</span>
       <span class="rb rb-n">${selDiff}</span>
     </div>
     <div class="ract">
-      <a class="byt" href="https://www.youtube.com/watch?v=${curSong.vid}" target="_blank" rel="noopener">Watch on YouTube</a>
-      <button class="bnext" onclick="startGame()">Next song</button>
+      <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">Open in iTunes</a>
+      <button class="bnext" onclick="nextSong()">Next song</button>
     </div>
   </div>`;
 }
 
-// ── Start game ─────────────────────────────────────────────────
-function startGame(){
-  stopPlay();
-  curSong=pick();clipIdx=0;guesses=[];
+// ── Song picking ────────────────────────────────────────────────
+function filterByDiff(songs){
+  // Easy = top 25%, impossible = all
+  if(selDiff==='easy') return songs.slice(0, Math.max(20, Math.floor(songs.length*0.25)));
+  if(selDiff==='medium') return songs.slice(0, Math.max(40, Math.floor(songs.length*0.5)));
+  if(selDiff==='hard') return songs.slice(0, Math.max(60, Math.floor(songs.length*0.75)));
+  return songs; // expert / impossible = all
+}
+
+async function loadPool(){
+  setStatus('Loading songs...');
+  songPool = await fetchSongs(selGenre, selEra);
+  if(!songPool.length){
+    setStatus('No songs found — try another genre');
+    return false;
+  }
+  // Shuffle
+  for(let i=songPool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [songPool[i],songPool[j]]=[songPool[j],songPool[i]];
+  }
+  poolOffset=0;
+  setStatus('');
+  return true;
+}
+
+function pickSong(){
+  const filtered=filterByDiff(songPool);
+  if(!filtered.length) return songPool[Math.floor(Math.random()*songPool.length)];
+  const song=filtered[poolOffset%filtered.length];
+  poolOffset++;
+  return song;
+}
+
+async function startGame(){
+  stopAudio();
+  if(!songPool.length){
+    const ok=await loadPool();
+    if(!ok)return;
+  }
+  curSong=pickSong();
+  audio=null; // reset audio object for new song
+  clipIdx=0;guesses=[];
   buildWave();buildClips();updateClips();renderGuesses();buildSearch();
   document.getElementById('game-area').style.display='block';
   document.getElementById('result-area').style.display='none';
-  document.getElementById('loading-txt').textContent=ytLoaded?'':'Loading audio...';
-  if(ytLoaded) loadVideo(curSong.vid);
+  setStatus('Press play to start');
+}
+
+async function nextSong(){
+  // Reload pool occasionally to keep fresh
+  if(poolOffset>=songPool.length-1){
+    songPool=[];
+    await loadPool();
+  }
+  startGame();
 }
 
 function setDiff(d){
   selDiff=d;
   document.querySelectorAll('.diff-pill').forEach(b=>b.classList.toggle('active',b.dataset.d===d));
   document.getElementById('diff-hint').textContent=DIFFS[d].hint;
-  used.clear();startGame();
+  startGame();
 }
 
-// ── Events ─────────────────────────────────────────────────────
-document.getElementById('sel-era').onchange=e=>{selEra=e.target.value;used.clear();startGame();};
-document.getElementById('sel-genre').onchange=e=>{selGenre=e.target.value;used.clear();startGame();};
-document.getElementById('diff-row').onclick=e=>{const p=e.target.closest('.diff-pill');if(p)setDiff(p.dataset.d);};
+// ── Events ──────────────────────────────────────────────────────
+document.getElementById('sel-genre').onchange=async e=>{
+  selGenre=e.target.value;songPool=[];await loadPool();startGame();
+};
+document.getElementById('sel-era').onchange=async e=>{
+  selEra=e.target.value;songPool=[];await loadPool();startGame();
+};
+document.getElementById('diff-row').onclick=e=>{
+  const p=e.target.closest('.diff-pill');if(p)setDiff(p.dataset.d);
+};
+document.querySelectorAll('.start-btn').forEach(b=>{
+  b.onclick=()=>{
+    startOffset=parseInt(b.dataset.s);
+    document.querySelectorAll('.start-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  };
+});
 document.getElementById('pbtn').onclick=playClip;
 document.getElementById('bskip').onclick=skip;
-document.getElementById('bguess').onclick=guess;
-document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')guess();});
+document.getElementById('bguess').onclick=doGuess;
+document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
 document.addEventListener('click',e=>{
   const dd=document.getElementById('sdrop');
   if(dd&&!dd.contains(e.target)&&e.target!==document.getElementById('ginput'))dd.style.display='none';
 });
 
-// ── Init ───────────────────────────────────────────────────────
-setDiff('easy');
+// ── Init ─────────────────────────────────────────────────────────
+(async()=>{
+  setDiff('easy');
+  await loadPool();
+  startGame();
+})();
 </script>
-
-<!-- Load YouTube IFrame API -->
-<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
