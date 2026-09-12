@@ -82,7 +82,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .sdi-t{font-size:13px;font-weight:500}
 .sdi-m{font-size:11px;color:var(--t3);margin-top:1px}
 
-.arow{display:flex;gap:8px}
+.arow{display:flex;gap:8px;flex-wrap:wrap}
 .brerl{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
 .brerl:hover{border-color:var(--green);color:var(--green)}
 .bskip{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
@@ -195,6 +195,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <button class="bskip" id="bskip">Skip</button>
       <button class="bguess" id="bguess">Guess</button>
       <button class="brerl" id="breroll" title="Get a different song at this difficulty">🔀 Reroll</button>
+      <button class="brerl" id="brerollall" title="Get a different song on every difficulty">🎲 Reroll All</button>
     </div>
   </div>
 
@@ -375,7 +376,8 @@ let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
 let audio=null, waveAnim=null, tickTO=null, stopTO=null;
 let stats={c:0,s:0,p:0};
 let songPool=[];
-let pickQueue={key:null,order:[],ptr:0};
+let pickQueues={}; // key -> {order:[], ptr:0, lastId:null} — one shuffle bag per genre|era|diff combo
+let diffStates={}; // difficulty -> saved round {curSong, guesses, clipIdx, finished, resultHTML}
 let searchCache={};
 
 // ── Genre matching ─────────────────────────────────────────────
@@ -793,18 +795,17 @@ async function loadPool(){
     const j=Math.floor(Math.random()*(i+1));
     [songPool[i],songPool[j]]=[songPool[j],songPool[i]];
   }
-  pickQueue={key:null,order:[],ptr:0};
+  pickQueues={};
+  diffStates={};
   setStatus('');
   return true;
 }
 
 // Shuffle-bag song picker: works through every song in the current
-// filtered pool exactly once, in random order, before any repeats —
-// this is what actually prevents early repeats (the old version cycled
-// sequentially through an offset that could drift out of sync whenever
-// the difficulty changed, causing songs to repeat sooner than expected).
-// A fresh bag is built per genre+era+difficulty combo, and reshuffled
-// (with a swap to dodge an immediate repeat) once it's exhausted.
+// filtered pool exactly once, in random order, before any repeats.
+// A separate bag is kept per genre+era+difficulty combo (in pickQueues),
+// so switching difficulty and back doesn't reset or collide with another
+// difficulty's progress through its own pool.
 function shuffledIndices(n){
   const arr=Array.from({length:n},(_,i)=>i);
   for(let i=arr.length-1;i>0;i--){
@@ -818,20 +819,55 @@ function pickSong(){
   const filtered=filterByDiff(songPool);
   if(!filtered.length) return songPool[Math.floor(Math.random()*songPool.length)];
   const key=selGenre+'|'+selEra+'|'+selDiff+'|'+filtered.length;
-  if(pickQueue.key!==key){
-    pickQueue={key, order:shuffledIndices(filtered.length), ptr:0};
-  }
-  if(pickQueue.ptr>=pickQueue.order.length){
-    pickQueue.order=shuffledIndices(filtered.length);
-    pickQueue.ptr=0;
+  let pq=pickQueues[key];
+  if(!pq){ pq={order:shuffledIndices(filtered.length),ptr:0,lastId:null}; pickQueues[key]=pq; }
+  if(pq.ptr>=pq.order.length){
+    pq.order=shuffledIndices(filtered.length);
+    pq.ptr=0;
     // avoid an immediate repeat right at the reshuffle boundary
-    if(filtered.length>1 && curSong && filtered[pickQueue.order[0]].trackId===curSong.trackId){
-      [pickQueue.order[0],pickQueue.order[1]]=[pickQueue.order[1],pickQueue.order[0]];
+    if(filtered.length>1 && pq.lastId!=null && filtered[pq.order[0]].trackId===pq.lastId){
+      [pq.order[0],pq.order[1]]=[pq.order[1],pq.order[0]];
     }
   }
-  const song=filtered[pickQueue.order[pickQueue.ptr]];
-  pickQueue.ptr++;
+  const song=filtered[pq.order[pq.ptr]];
+  pq.ptr++;
+  pq.lastId=song.trackId;
   return song;
+}
+
+// Save whatever is currently on screen (song, guesses, finished/result
+// state) as the saved round for the difficulty we're about to leave, so
+// switching back later restores it exactly instead of losing progress.
+function saveCurrentDiffState(){
+  if(!curSong) return;
+  const finished = document.getElementById('result-area').style.display!=='none';
+  diffStates[selDiff] = {
+    curSong, guesses:[...guesses], clipIdx, finished,
+    resultHTML: finished ? document.getElementById('result-area').innerHTML : null
+  };
+}
+
+// Restore a previously-saved round for a difficulty. Returns false if
+// that difficulty has no saved round yet (caller should start a fresh
+// song in that case).
+function restoreDiffState(d){
+  const st=diffStates[d];
+  if(!st) return false;
+  stopAudio();
+  curSong=st.curSong; guesses=[...st.guesses]; clipIdx=st.clipIdx;
+  audio=null;
+  buildWave();buildClips();updateClips();renderGuesses();buildSearch();
+  if(st.finished){
+    document.getElementById('game-area').style.display='none';
+    const ra=document.getElementById('result-area');
+    ra.style.display='block';
+    ra.innerHTML=st.resultHTML;
+  }else{
+    document.getElementById('game-area').style.display='block';
+    document.getElementById('result-area').style.display='none';
+    setStatus('Press play to start');
+  }
+  return true;
 }
 
 async function startGame(){
@@ -861,6 +897,14 @@ async function reroll(){
   await startGame();
 }
 
+// Reroll All: same idea, but clears every difficulty's saved round so
+// each one deals a fresh song the next time you visit it, not just the
+// tab you're currently on.
+async function rerollAll(){
+  diffStates={};
+  await startGame();
+}
+
 function setDiff(d){
   selDiff=d;
   document.querySelectorAll('.diff-pill').forEach(b=>b.classList.toggle('active',b.dataset.d===d));
@@ -877,13 +921,12 @@ document.getElementById('sel-era').onchange=async e=>{
 document.getElementById('diff-row').onclick=e=>{
   const p=e.target.closest('.diff-pill');
   if(!p) return;
-  setDiff(p.dataset.d);
-  // Mid-round: just switch the pool for the *next* song, leave this one alone.
-  // Between rounds (already looking at a result): there's nothing left to
-  // preserve, so move straight into a fresh song at the new difficulty
-  // instead of leaving the previous round's result/guesses stuck on screen.
-  if(document.getElementById('result-area').style.display!=='none'){
-    startGame();
+  const newDiff=p.dataset.d;
+  if(newDiff===selDiff) return;
+  saveCurrentDiffState();
+  setDiff(newDiff);
+  if(!restoreDiffState(newDiff)){
+    startGame(); // haven't played this difficulty yet — deal a fresh song
   }
 };
 document.querySelectorAll('.start-btn').forEach(b=>{
@@ -900,6 +943,7 @@ document.querySelectorAll('.start-btn').forEach(b=>{
 });
 document.getElementById('pbtn').onclick=playClip;
 document.getElementById('breroll').onclick=reroll;
+document.getElementById('brerollall').onclick=rerollAll;
 document.getElementById('bskip').onclick=skip;
 document.getElementById('bguess').onclick=doGuess;
 document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
