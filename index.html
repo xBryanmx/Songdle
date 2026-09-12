@@ -120,37 +120,48 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 
   <div class="filter-row">
     <select id="sel-genre">
-      <option value="all">All genres</option>
-      <option value="pop">Pop</option>
-      <option value="hip-hop">Hip-hop / Rap</option>
-      <option value="r-b-soul">R&amp;B / Soul</option>
-      <option value="rock">Rock</option>
-      <option value="alternative">Alternative / Indie</option>
-      <option value="metal">Metal</option>
-      <option value="punk">Punk</option>
-      <option value="country">Country</option>
-      <option value="folk">Folk / Acoustic</option>
-      <option value="jazz">Jazz</option>
-      <option value="blues">Blues</option>
-      <option value="classical">Classical</option>
-      <option value="electronic">Electronic / Dance</option>
-      <option value="house">House / Techno</option>
-      <option value="edm">EDM</option>
-      <option value="disco">Disco / Funk</option>
-      <option value="reggae">Reggae / Dancehall</option>
-      <option value="latin">Latin</option>
-      <option value="k-pop">K-pop</option>
-      <option value="j-pop">J-pop</option>
-      <option value="gospel">Gospel / Christian</option>
-      <option value="new-age">New Age / Ambient</option>
-      <option value="soundtrack">Soundtrack / Score</option>
-      <option value="world-music">World Music</option>
-      <option value="afrobeats">Afrobeats</option>
-      <option value="ska">Ska</option>
-      <option value="grunge">Grunge</option>
-      <option value="emo">Emo / Post-hardcore</option>
-      <option value="trap">Trap</option>
-      <option value="drill">Drill</option>
+      <option value="all">🎵 All genres</option>
+      <optgroup label="── Popular ──">
+        <option value="pop">Pop</option>
+        <option value="hiphop">Hip-hop &amp; Rap</option>
+        <option value="rnb">R&amp;B &amp; Soul</option>
+      </optgroup>
+      <optgroup label="── Rock ──">
+        <option value="rock">Rock (all)</option>
+        <option value="alternative">Alternative &amp; Indie</option>
+        <option value="metal">Metal &amp; Hard Rock</option>
+        <option value="punk">Punk &amp; Emo</option>
+        <option value="grunge">Grunge</option>
+      </optgroup>
+      <optgroup label="── Electronic ──">
+        <option value="electronic">Electronic &amp; Dance (all)</option>
+        <option value="house">House &amp; Techno</option>
+        <option value="disco">Disco &amp; Funk</option>
+      </optgroup>
+      <optgroup label="── Roots ──">
+        <option value="country">Country &amp; Bluegrass</option>
+        <option value="folk">Folk &amp; Acoustic</option>
+        <option value="blues">Blues</option>
+        <option value="reggae">Reggae &amp; Dancehall</option>
+      </optgroup>
+      <optgroup label="── Jazz &amp; Classical ──">
+        <option value="jazz">Jazz</option>
+        <option value="classical">Classical &amp; Opera</option>
+      </optgroup>
+      <optgroup label="── Global ──">
+        <option value="afrobeats">Afrobeats</option>
+        <option value="world">World Music</option>
+      </optgroup>
+      <optgroup label="── International ──">
+        <option value="latin">Latin</option>
+        <option value="kpop">K-pop</option>
+        <option value="jpop">J-pop &amp; Anime</option>
+      </optgroup>
+      <optgroup label="── Other ──">
+        <option value="gospel">Gospel &amp; Christian</option>
+        <option value="soundtrack">Soundtrack &amp; Score</option>
+        <option value="ambient">Ambient &amp; New Age</option>
+      </optgroup>
     </select>
     <select id="sel-era">
       <option value="">Any era</option>
@@ -225,13 +236,34 @@ const DIFFS = {
   impossible: { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Anything goes 💀' },
 };
 
-const ITUNES_GENRE_MAP = {
-  'pop':'14','hip-hop':'18','r-b-soul':'15','rock':'21','alternative':'20',
-  'metal':'1153','punk':'1223','country':'6','folk':'16','jazz':'11',
-  'blues':'2','classical':'5','electronic':'7','house':'1026','edm':'1026',
-  'disco':'17','reggae':'24','latin':'12','k-pop':'51','j-pop':'27',
-  'gospel':'22','new-age':'13','soundtrack':'10','world-music':'19',
-  'afrobeats':'1286','ska':'1224','grunge':'1222','emo':'1220','trap':'1279','drill':'1280',
+// Each genre group has: iTunes genre IDs, search terms, and keyword filters
+const GENRE_CONFIG = {
+  all:         { ids:[], terms:['top hits music','popular songs'], keywords:[] },
+  pop:         { ids:['14'], terms:['pop music','pop hits','pop songs'], keywords:['pop','dance pop','electropop','synth-pop'] },
+  hiphop:      { ids:['18'], terms:['hip hop rap','rap music','hip-hop','trap rap','drill rap'], keywords:['hip-hop','hip hop','rap','trap','drill','gangsta','conscious'] },
+  rnb:         { ids:['15'], terms:['rnb soul music','r&b soul','rhythm blues'], keywords:['r&b','soul','rhythm and blues','neo soul','motown','funk'] },
+  rock:        { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','rock band','rock hits'], keywords:['rock','classic rock','hard rock','soft rock','indie rock','punk rock','grunge','alternative'] },
+  alternative: { ids:['20'], terms:['alternative indie music','indie pop','indie rock','alt rock'], keywords:['alternative','indie','alt-rock','indie pop','indie rock','post-punk'] },
+  metal:       { ids:['1153'], terms:['heavy metal music','metal band','hard rock metal','thrash metal'], keywords:['metal','heavy metal','thrash','death metal','black metal','doom','hard rock'] },
+  punk:        { ids:['1223','1220'], terms:['punk rock music','emo music','punk band','pop punk','post-hardcore'], keywords:['punk','pop punk','emo','post-hardcore','screamo','hardcore','ska punk'] },
+  grunge:      { ids:['1222','20'], terms:['grunge music','90s grunge','alternative grunge'], keywords:['grunge','alternative','seattle sound'] },
+  electronic:  { ids:['7','1026'], terms:['electronic dance music','edm','electronic music','dance music','techno house'], keywords:['electronic','dance','electro','synth','techno','house','trance','club','edm'] },
+  house:       { ids:['1026'], terms:['house music','techno music','trance music','club music','deep house'], keywords:['house','techno','trance','club','deep house','chicago house','uk garage'] },
+  disco:       { ids:['17'], terms:['disco music','funk music','disco funk','70s disco'], keywords:['disco','funk','soul','boogie'] },
+  country:     { ids:['6'], terms:['country music','country songs','bluegrass music','country hits'], keywords:['country','bluegrass','country pop','country rock','honky tonk','outlaw'] },
+  folk:        { ids:['16'], terms:['folk music','acoustic music','singer songwriter','acoustic songs'], keywords:['folk','acoustic','singer-songwriter','folk rock','americana','bluegrass'] },
+  blues:       { ids:['2'], terms:['blues music','blues rock','soul blues','chicago blues'], keywords:['blues','delta blues','blues rock','rhythm and blues'] },
+  reggae:      { ids:['24'], terms:['reggae music','dancehall music','ska reggae','jamaican music'], keywords:['reggae','dancehall','ska','dub','roots reggae'] },
+  jazz:        { ids:['11'], terms:['jazz music','jazz songs','smooth jazz','bebop jazz'], keywords:['jazz','bebop','swing','smooth jazz','fusion','bossa nova'] },
+  classical:   { ids:['5'], terms:['classical music','orchestra symphony','opera music','piano classical'], keywords:['classical','orchestral','symphony','opera','chamber','baroque','romantic'] },
+  latin:       { ids:['12'], terms:['latin music','reggaeton','salsa music','latin pop','bachata'], keywords:['latin','reggaeton','salsa','bachata','cumbia','bossa nova','latin pop','flamenco'] },
+  kpop:        { ids:['51'], terms:['kpop music','korean pop','k-pop songs'], keywords:['k-pop','kpop','korean'] },
+  jpop:        { ids:['27'], terms:['jpop music','japanese pop','j-pop anime','anime music'], keywords:['j-pop','jpop','japanese','anime'] },
+  afrobeats:   { ids:['1286'], terms:['afrobeats music','afropop','afrobeat songs'], keywords:['afrobeats','afro','afropop'] },
+  world:       { ids:['19'], terms:['world music','celtic music','indian music','global music'], keywords:['world','celtic','indian','african','folk world'] },
+  gospel:      { ids:['22'], terms:['gospel music','christian music','worship music','ccm'], keywords:['gospel','christian','worship','ccm','spiritual','contemporary christian'] },
+  soundtrack:  { ids:['10'], terms:['movie soundtrack','film score','tv soundtrack','cinematic music'], keywords:['soundtrack','score','film','theme','cinematic','motion picture'] },
+  ambient:     { ids:['13'], terms:['ambient music','new age music','meditation music','chill music'], keywords:['ambient','new age','chill','meditation','drone','atmospheric'] },
 };
 
 // ── State ───────────────────────────────────────────────────────
@@ -289,56 +321,63 @@ async function fetchSongs(genre, era){
   if(searchCache[cacheKey]) return searchCache[cacheKey];
 
   setStatus('Finding songs...');
-  const genreId = (genre==='all') ? '' : (ITUNES_GENRE_MAP[genre]||'14');
+  const cfg = GENRE_CONFIG[genre]||GENRE_CONFIG.all;
+  const eraTerms = {'1950':'1950s','1960':'1960s','1970':'1970s','1980':'1980s','1990':'1990s','2000':'2000s','2010':'2010s','2020':'2020s'};
+  const eraTerm = (era && eraTerms[era]) ? eraTerms[era] : '';
 
-  // Build search terms for different eras
-  const eraTerms = {
-    '1950':'1950s','1960':'1960s','1970':'1970s','1980':'1980s',
-    '1990':'1990s','2000':'2000s','2010':'2010s','2020':'2020s'
-  };
+  let allSongs = [];
 
-  let url;
-  if(genre==='all'){
-    const eraTerm = (era && eraTerms[era]) ? eraTerms[era] : 'top hits music';
-    url = `https://itunes.apple.com/search?term=${encodeURIComponent(eraTerm)}&mediaType=music&limit=200&entity=song`;
-  } else if(era && eraTerms[era]){
-    url = `https://itunes.apple.com/search?term=${encodeURIComponent(eraTerms[era])}&mediaType=music&genreId=${genreId}&limit=200&entity=song`;
-  } else {
-    // No era filter — use broad genre search
-    const genreNames = {
-      'pop':'pop music','hip-hop':'hip hop rap','r-b-soul':'rnb soul',
-      'rock':'rock music','alternative':'alternative indie','metal':'heavy metal',
-      'punk':'punk rock','country':'country music','folk':'folk acoustic',
-      'jazz':'jazz music','blues':'blues music','classical':'classical music',
-      'electronic':'electronic dance','house':'house techno','edm':'edm electronic dance',
-      'disco':'disco funk','reggae':'reggae dancehall','latin':'latin music',
-      'k-pop':'kpop korean','j-pop':'jpop japanese','gospel':'gospel christian',
-      'new-age':'ambient new age','soundtrack':'movie soundtrack score',
-      'world-music':'world music','afrobeats':'afrobeats','ska':'ska music',
-      'grunge':'grunge','emo':'emo','trap':'trap music','drill':'drill music',
-    };
-    const term = genreNames[genre]||genre;
-    url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&mediaType=music&genreId=${genreId}&limit=200&entity=song`;
+  // Fetch using multiple search terms to maximise results (especially for era+genre combos)
+  const searchTerms = cfg.terms.slice(0, 3); // use up to 3 terms
+  const genreIds = cfg.ids.slice(0, 2); // use up to 2 genre IDs
+
+  const fetches = [];
+
+  for(const term of searchTerms){
+    const q = eraTerm ? `${eraTerm} ${term}` : term;
+    fetches.push(
+      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&limit=100&entity=song`)
+        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
+    );
   }
 
-  try {
-    const res = await fetch(url + '&callback=', {mode:'cors'});
-    const data = await res.json();
-    const raw = (data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
-    const songs = genre==='all' ? raw : raw.filter(s=>genreMatches(s, genre));
-    searchCache[cacheKey] = songs;
-    return songs;
-  } catch(e){
-    try {
-      const fallback = `https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&mediaType=music&limit=100&entity=song`;
-      const res2 = await fetch(fallback);
-      const data2 = await res2.json();
-      const raw2 = (data2.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
-      const songs2 = genre==='all' ? raw2 : raw2.filter(s=>genreMatches(s, genre));
-      searchCache[cacheKey] = songs2;
-      return songs2;
-    } catch(e2){ return []; }
+  // Also fetch by genreId if available
+  for(const gid of genreIds){
+    const q = eraTerm ? eraTerm : (searchTerms[0]||genre);
+    fetches.push(
+      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&genreId=${gid}&limit=100&entity=song`)
+        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
+    );
   }
+
+  const results = await Promise.all(fetches);
+
+  // Merge, deduplicate by trackId, filter
+  const seen = new Set();
+  for(const batch of results){
+    for(const s of batch){
+      if(!s.previewUrl||!s.trackName||!s.artistName) continue;
+      if(seen.has(s.trackId)) continue;
+      seen.add(s.trackId);
+      if(genreMatches(s, genre)) allSongs.push(s);
+    }
+  }
+
+  // If strict genre filter left too few songs, relax and include all results
+  if(allSongs.length < 10){
+    const seen2 = new Set(allSongs.map(s=>s.trackId));
+    for(const batch of results){
+      for(const s of batch){
+        if(!s.previewUrl||!s.trackName||!s.artistName) continue;
+        if(seen2.has(s.trackId)) continue;
+        seen2.add(s.trackId);
+        allSongs.push(s);
+      }
+    }
+  }
+
+  searchCache[cacheKey] = allSongs;
+  return allSongs;
 }
 
 async function searchForGuess(query){
