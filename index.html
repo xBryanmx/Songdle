@@ -457,28 +457,6 @@ function renderGuesses(){
 // ── Search (live iTunes) ────────────────────────────────────────
 let searchTO=null;
 
-// Normalize a title/artist for loose comparison: lowercase, strip
-// "(feat. ...)"/bracketed suffixes and punctuation. This catches iTunes
-// catalog variants of the same song (remaster, single version, feat. tag,
-// etc.) that a strict string-equality check would miss and let leak into
-// the guess dropdown.
-function normForMatch(s){
-  return (s||'')
-    .toLowerCase()
-    .replace(/\(feat[^)]*\)/g,'')
-    .replace(/\[[^\]]*\]/g,'')
-    .replace(/\([^)]*\)/g,'')
-    .replace(/[^a-z0-9]/g,'');
-}
-
-function isCurrentSong(s){
-  if(!curSong) return false;
-  const sameArtist = normForMatch(s.artistName)===normForMatch(curSong.artistName);
-  if(!sameArtist) return false;
-  const nTitle=normForMatch(s.trackName), nCur=normForMatch(curSong.trackName);
-  return nTitle===nCur || nTitle.includes(nCur) || nCur.includes(nTitle);
-}
-
 function buildSearch(){
   const inp=document.getElementById('ginput');
   const dd=document.getElementById('sdrop');
@@ -486,18 +464,18 @@ function buildSearch(){
   inp.oninput=()=>{
     clearTimeout(searchTO);
     const q=inp.value.trim();
-    // Require at least 2 characters — a single letter matches too broadly
-    // (mostly irrelevant results) and increases the odds a near-duplicate
-    // of the answer slips into the results.
-    if(q.length<2){dd.style.display='none';return;}
-    // Only search iTunes — never show local pool (would reveal answer)
+    // Require a few characters — a 1-2 letter query matches too broadly
+    // (mostly irrelevant results) and risks surfacing the answer before
+    // the player has actually typed enough to have found it themselves.
+    if(q.length<3){dd.style.display='none';return;}
     // Debounce to avoid too many requests
     searchTO=setTimeout(async()=>{
       const results=await searchForGuess(q);
-      // Filter out the current song (and close title/artist variants of it)
-      // from results so it never appears as a hint
-      const filtered=results.filter(s=>!isCurrentSong(s));
-      showDropdown(filtered.slice(0,9), dd);
+      // NOTE: we intentionally do NOT filter out the current song here.
+      // If the player has typed enough of the real title/artist for it to
+      // legitimately show up in results, that's them finding the answer
+      // themselves — hiding it just leaves a list of only-wrong options.
+      showDropdown(results.slice(0,9), dd);
     }, 350);
   };
 }
