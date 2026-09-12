@@ -192,9 +192,9 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <div class="sdrop" id="sdrop" style="display:none"></div>
     </div>
     <div class="arow">
-      <button class="brerl" id="breroll" title="Get a different song at this difficulty">🔀 Reroll</button>
       <button class="bskip" id="bskip">Skip</button>
       <button class="bguess" id="bguess">Guess</button>
+      <button class="brerl" id="breroll" title="Get a different song at this difficulty">🔀 Reroll</button>
     </div>
   </div>
 
@@ -875,7 +875,16 @@ document.getElementById('sel-era').onchange=async e=>{
   selEra=e.target.value;songPool=[];await loadPool();startGame();
 };
 document.getElementById('diff-row').onclick=e=>{
-  const p=e.target.closest('.diff-pill');if(p)setDiff(p.dataset.d);
+  const p=e.target.closest('.diff-pill');
+  if(!p) return;
+  setDiff(p.dataset.d);
+  // Mid-round: just switch the pool for the *next* song, leave this one alone.
+  // Between rounds (already looking at a result): there's nothing left to
+  // preserve, so move straight into a fresh song at the new difficulty
+  // instead of leaving the previous round's result/guesses stuck on screen.
+  if(document.getElementById('result-area').style.display!=='none'){
+    startGame();
+  }
 };
 document.querySelectorAll('.start-btn').forEach(b=>{
   b.onclick=()=>{
