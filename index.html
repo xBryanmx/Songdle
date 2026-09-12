@@ -391,10 +391,19 @@ async function playClip(){
     try { await audio.load(); } catch(e){}
   }
 
-  // Seek to start offset
-  const seekTo = startOffset;
-  audio.currentTime = seekTo;
   setStatus('');
+
+  // Wait for audio to be ready enough to seek
+  await new Promise(resolve => {
+    if(audio.readyState >= 2){ resolve(); return; }
+    audio.addEventListener('canplay', resolve, {once:true});
+    setTimeout(resolve, 3000); // fallback timeout
+  });
+
+  // Seek to start offset — iTunes previews are 30s so cap at 10s for "30s in" mode
+  const maxSeek = Math.max(0, (audio.duration||30) - 15);
+  const seekTo = Math.min(startOffset, maxSeek);
+  audio.currentTime = seekTo;
 
   try { await audio.play(); } catch(e){ setStatus('Audio blocked — click again'); return; }
 
@@ -636,9 +645,14 @@ document.getElementById('diff-row').onclick=e=>{
 };
 document.querySelectorAll('.start-btn').forEach(b=>{
   b.onclick=()=>{
-    startOffset=parseInt(b.dataset.s);
+    const newOffset=parseInt(b.dataset.s);
+    if(newOffset===startOffset) return;
+    startOffset=newOffset;
     document.querySelectorAll('.start-btn').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
+    // Load a fresh song so players can't cheat by switching modes
+    songPool=[];
+    startGame();
   };
 });
 document.getElementById('pbtn').onclick=playClip;
