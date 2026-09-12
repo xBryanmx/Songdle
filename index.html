@@ -121,7 +121,9 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
   <div class="filter-row">
     <select id="sel-genre">
       <option value="all">🎵 All genres</option>
-      <option value="popular">🎤 Popular</option>
+      <option value="pop">🎤 Pop</option>
+      <option value="hiphop">🎧 Hip-hop &amp; Rap</option>
+      <option value="rnb">🎶 R&amp;B &amp; Soul</option>
       <option value="rock">🎸 Rock</option>
       <option value="electronic">🎛️ Electronic</option>
       <option value="roots">🪕 Roots</option>
@@ -208,7 +210,9 @@ const DIFFS = {
 // Each genre group has: iTunes genre IDs, search terms, and keyword filters
 const GENRE_CONFIG = {
   all:          { ids:[], terms:['top hits music','popular songs','billboard hits'], keywords:[] },
-  popular:      { ids:['14','18','15'], terms:['pop music hits','hip hop rap','rnb soul hits','pop songs','rap music'], keywords:['pop','hip-hop','hip hop','rap','r&b','soul','trap','dance pop','urban'] },
+  pop:          { ids:['14'], terms:['pop music','pop hits','pop songs','dance pop'], keywords:['pop','dance pop','electropop','synth-pop','pop rock'] },
+  hiphop:       { ids:['18'], terms:['hip hop music','rap music','hip-hop songs','trap music','drill rap'], keywords:['hip-hop','hip hop','rap','trap','drill','gangsta','conscious','urban'] },
+  rnb:          { ids:['15'], terms:['rnb music','r&b soul','rhythm blues','neo soul','motown'], keywords:['r&b','soul','rhythm and blues','neo soul','motown','funk'] },
   rock:         { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','alternative indie','heavy metal','punk rock','grunge','hard rock'], keywords:['rock','alternative','indie','metal','punk','grunge','hard rock','classic rock','emo','post-hardcore'] },
   electronic:   { ids:['7','1026','17'], terms:['electronic dance music','house music','techno','edm dance','disco funk','synth pop'], keywords:['electronic','dance','house','techno','trance','edm','club','disco','funk','synth','electro'] },
   roots:        { ids:['6','16','2','24'], terms:['country music','folk acoustic','blues music','reggae dancehall','bluegrass','americana'], keywords:['country','folk','blues','reggae','dancehall','ska','acoustic','bluegrass','americana','outlaw'] },
