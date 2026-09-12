@@ -210,18 +210,24 @@ const DIFFS = {
 // Each genre group has: iTunes genre IDs, search terms, and keyword filters
 const GENRE_CONFIG = {
   all:          { ids:[], terms:['top hits music','popular songs','billboard hits'], keywords:[] },
-  pop:          { ids:['14'], terms:['pop music','pop hits','pop songs','dance pop'], keywords:['pop','dance pop','electropop','synth-pop','pop rock'] },
-  hiphop:       { ids:['18'], terms:['hip hop music','rap music','hip-hop songs','trap music','drill rap'], keywords:['hip-hop','hip hop','rap','trap','drill','gangsta','conscious','urban'] },
-  rnb:          { ids:['15'], terms:['rnb music','r&b soul','rhythm blues','neo soul','motown'], keywords:['r&b','soul','rhythm and blues','neo soul','motown','funk'] },
-  rock:         { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','alternative indie','heavy metal','punk rock','grunge','hard rock'], keywords:['rock','alternative','indie','metal','punk','grunge','hard rock','classic rock','emo','post-hardcore'] },
-  electronic:   { ids:['7','1026','17'], terms:['electronic dance music','house music','techno','edm dance','disco funk','synth pop'], keywords:['electronic','dance','house','techno','trance','edm','club','disco','funk','synth','electro'] },
-  roots:        { ids:['6','16','2','24'], terms:['country music','folk acoustic','blues music','reggae dancehall','bluegrass','americana'], keywords:['country','folk','blues','reggae','dancehall','ska','acoustic','bluegrass','americana','outlaw'] },
-  jazzclassical:{ ids:['11','5'], terms:['jazz music','classical orchestra','smooth jazz','symphony opera','bebop','piano classical'], keywords:['jazz','classical','orchestral','symphony','opera','bebop','swing','chamber','baroque'] },
-  latin:        { ids:['12'], terms:['latin music','reggaeton','salsa music','latin pop','bachata','cumbia'], keywords:['latin','reggaeton','salsa','bachata','cumbia','latin pop','bossa nova','flamenco','merengue'] },
-  kpop:         { ids:['51'], terms:['kpop music','korean pop','k-pop songs','korean music'], keywords:['k-pop','kpop','korean'] },
-  jpop:         { ids:['27'], terms:['jpop music','japanese pop','j-pop','anime music','anime songs'], keywords:['j-pop','jpop','japanese','anime'] },
-  global:       { ids:['19','1286'], terms:['afrobeats music','world music','celtic music','afropop','global music'], keywords:['afrobeats','afro','world','celtic','indian','african','global'] },
-  other:        { ids:['10','22','13'], terms:['movie soundtrack','gospel music','ambient music','film score','christian worship','new age'], keywords:['soundtrack','score','film','gospel','christian','worship','ambient','new age','cinematic'] },
+  // Pop: must be tagged Pop by iTunes — not hip-hop or r&b
+  pop:          { ids:['14'], terms:['pop music','pop hits','pop songs','dance pop'], keywords:['pop'] },
+  // Hip-hop: must contain hip-hop/rap — excludes r&b and pop only
+  hiphop:       { ids:['18'], terms:['hip hop music','rap music','hip-hop songs','trap music'], keywords:['hip-hop','hip hop','rap','trap','drill'] },
+  // R&B: soul and r&b only
+  rnb:          { ids:['15'], terms:['rnb music','r&b soul','rhythm blues','neo soul'], keywords:['r&b','soul','rhythm and blues','neo soul','motown'] },
+  // Rock: any rock subgenre — uses iTunes genre IDs as primary filter
+  rock:         { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','alternative rock','heavy metal','punk rock','grunge'], keywords:['rock','alternative','indie rock','metal','punk','grunge','hard rock','classic rock','emo','alternative rock'] },
+  // Electronic: dance/electronic subgenres only
+  electronic:   { ids:['7','1026','17'], terms:['electronic dance music','house music','techno edm','disco funk'], keywords:['electronic','dance','house','techno','trance','edm','club','disco','funk','electro'] },
+  // Roots: country/folk/blues/reggae
+  roots:        { ids:['6','16','2','24'], terms:['country music','folk acoustic','blues music','reggae dancehall'], keywords:['country','folk','blues','reggae','dancehall','ska','bluegrass','americana'] },
+  jazzclassical:{ ids:['11','5'], terms:['jazz music','classical orchestra','smooth jazz','symphony','bebop'], keywords:['jazz','classical','orchestral','symphony','opera','bebop','swing','chamber','baroque'] },
+  latin:        { ids:['12'], terms:['latin music','reggaeton','salsa','latin pop','bachata'], keywords:['latin','reggaeton','salsa','bachata','cumbia','latin pop','merengue'] },
+  kpop:         { ids:['51'], terms:['kpop music','korean pop','k-pop'], keywords:['k-pop','kpop','korean'] },
+  jpop:         { ids:['27'], terms:['jpop music','japanese pop','j-pop','anime music'], keywords:['j-pop','jpop','japanese','anime'] },
+  global:       { ids:['19','1286'], terms:['afrobeats music','world music','afropop'], keywords:['afrobeats','afro','world','celtic','indian','african'] },
+  other:        { ids:['10','22','13'], terms:['movie soundtrack','gospel music','ambient music','film score','christian worship'], keywords:['soundtrack','score','film','gospel','christian','worship','ambient','new age','cinematic'] },
 };
 
 // ── State ───────────────────────────────────────────────────────
@@ -233,42 +239,17 @@ let songPool=[], poolOffset=0;
 let searchCache={};
 
 // ── Genre matching ─────────────────────────────────────────────
-const GENRE_KEYWORDS = {
-  'pop':['pop'],
-  'hip-hop':['hip-hop','hip hop','rap','trap','r&b'],
-  'r-b-soul':['r&b','soul','rhythm','blues','funk'],
-  'rock':['rock'],
-  'alternative':['alternative','indie','alt'],
-  'metal':['metal','heavy metal','thrash','death metal','black metal'],
-  'punk':['punk','post-punk','hardcore'],
-  'country':['country'],
-  'folk':['folk','acoustic','singer-songwriter','bluegrass'],
-  'jazz':['jazz'],
-  'blues':['blues'],
-  'classical':['classical','orchestra','symphony','opera','chamber'],
-  'electronic':['electronic','electro','synth','techno','dance'],
-  'house':['house','techno','trance','club','dance'],
-  'edm':['edm','electronic','dance','electro','club'],
-  'disco':['disco','funk','soul'],
-  'reggae':['reggae','dancehall','ska','dub'],
-  'latin':['latin','reggaeton','salsa','bachata','cumbia','bossa','samba'],
-  'k-pop':['k-pop','korean','kpop'],
-  'j-pop':['j-pop','japanese','jpop','anime'],
-  'gospel':['gospel','christian','worship','ccm','spiritual'],
-  'new-age':['new age','ambient','chill','meditation'],
-  'soundtrack':['soundtrack','score','film','theme','cinematic'],
-  'world-music':['world','african','celtic','indian','folk'],
-  'afrobeats':['afrobeats','afro','afropop','afrobeat'],
-  'ska':['ska','reggae','rocksteady'],
-  'grunge':['grunge','alternative','rock'],
-  'emo':['emo','post-hardcore','screamo','punk'],
-  'trap':['trap','hip-hop','rap'],
-  'drill':['drill','rap','hip-hop'],
-};
-
+// Use the per-genre keyword lists already defined on GENRE_CONFIG (they're
+// correctly curated and keyed to the actual genre values, e.g. 'hiphop',
+// 'rnb'). Previously this used a separate, mismatched keyword table (keys
+// like 'hip-hop' / 'r-b-soul' that never matched the real 'hiphop' / 'rnb'
+// values), so genre filtering silently failed for nearly every genre and
+// fell back to including songs from any genre — which is how e.g. an R&B
+// song could end up classified as hip-hop.
 function genreMatches(song, genre){
   if(genre==='all') return true;
-  const keywords = GENRE_KEYWORDS[genre]||[genre.replace(/-/g,' ')];
+  const cfg = GENRE_CONFIG[genre];
+  const keywords = (cfg && cfg.keywords && cfg.keywords.length) ? cfg.keywords : [genre.replace(/-/g,' ')];
   const songGenre = (song.primaryGenreName||'').toLowerCase();
   return keywords.some(kw=>songGenre.includes(kw));
 }
@@ -475,6 +456,29 @@ function renderGuesses(){
 
 // ── Search (live iTunes) ────────────────────────────────────────
 let searchTO=null;
+
+// Normalize a title/artist for loose comparison: lowercase, strip
+// "(feat. ...)"/bracketed suffixes and punctuation. This catches iTunes
+// catalog variants of the same song (remaster, single version, feat. tag,
+// etc.) that a strict string-equality check would miss and let leak into
+// the guess dropdown.
+function normForMatch(s){
+  return (s||'')
+    .toLowerCase()
+    .replace(/\(feat[^)]*\)/g,'')
+    .replace(/\[[^\]]*\]/g,'')
+    .replace(/\([^)]*\)/g,'')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+function isCurrentSong(s){
+  if(!curSong) return false;
+  const sameArtist = normForMatch(s.artistName)===normForMatch(curSong.artistName);
+  if(!sameArtist) return false;
+  const nTitle=normForMatch(s.trackName), nCur=normForMatch(curSong.trackName);
+  return nTitle===nCur || nTitle.includes(nCur) || nCur.includes(nTitle);
+}
+
 function buildSearch(){
   const inp=document.getElementById('ginput');
   const dd=document.getElementById('sdrop');
@@ -482,19 +486,19 @@ function buildSearch(){
   inp.oninput=()=>{
     clearTimeout(searchTO);
     const q=inp.value.trim();
-    if(!q){dd.style.display='none';return;}
-    // First search local pool for instant results
-    const localMatches=songPool.filter(s=>{
-      const title=(s.trackName||'').toLowerCase();
-      const artist=(s.artistName||'').toLowerCase();
-      return title.includes(q.toLowerCase())||artist.includes(q.toLowerCase());
-    }).slice(0,5);
-    showDropdown(localMatches, dd);
-    // Then fetch from iTunes for more results
+    // Require at least 2 characters — a single letter matches too broadly
+    // (mostly irrelevant results) and increases the odds a near-duplicate
+    // of the answer slips into the results.
+    if(q.length<2){dd.style.display='none';return;}
+    // Only search iTunes — never show local pool (would reveal answer)
+    // Debounce to avoid too many requests
     searchTO=setTimeout(async()=>{
       const results=await searchForGuess(q);
-      showDropdown(results.slice(0,9), dd);
-    }, 400);
+      // Filter out the current song (and close title/artist variants of it)
+      // from results so it never appears as a hint
+      const filtered=results.filter(s=>!isCurrentSong(s));
+      showDropdown(filtered.slice(0,9), dd);
+    }, 350);
   };
 }
 
