@@ -132,6 +132,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <option value="kpop">🇰🇷 K-pop</option>
       <option value="jpop">🎌 J-pop &amp; Anime</option>
       <option value="global">🌍 Global</option>
+      <option value="fifa">⚽ FIFA / EA FC &amp; World Cup</option>
       <option value="other">🎬 Soundtracks &amp; More</option>
     </select>
     <select id="sel-era">
@@ -228,6 +229,141 @@ const GENRE_CONFIG = {
   jpop:         { ids:['27'], terms:['jpop music','japanese pop','j-pop','anime music'], keywords:['j-pop','jpop','japanese','anime'] },
   global:       { ids:['19','1286'], terms:['afrobeats music','world music','afropop'], keywords:['afrobeats','afro','world','celtic','indian','african'] },
   other:        { ids:['10','22','13'], terms:['movie soundtrack','gospel music','ambient music','film score','christian worship'], keywords:['soundtrack','score','film','gospel','christian','worship','ambient','new age','cinematic'] },
+  // FIFA / EA FC soundtracks and World Cup songs span every musical genre,
+  // so there's no iTunes genre tag to filter by. Instead this is a curated
+  // list of actual songs from the games' official soundtracks and FIFA
+  // World Cup anthems — each one gets looked up on iTunes by name.
+  fifa: { curated: [
+    // World Cup official songs
+    {t:'Waka Waka (This Time for Africa)', a:'Shakira'},
+    {t:'We Are One (Ole Ola)', a:'Pitbull'},
+    {t:'Live It Up', a:'Nicky Jam'},
+    {t:'Hayya Hayya (Better Together)', a:'Trinidad Cardona'},
+    {t:'Tukoh Taka', a:'Nicki Minaj'},
+    {t:'Arhbo', a:'Ozuna'},
+    {t:'Light the Sky', a:'Balqees'},
+    {t:'Dreamers', a:'Jung Kook'},
+    {t:'Colors', a:'Jason Derulo'},
+    {t:'Cup of Life', a:'Ricky Martin'},
+    {t:'Boom', a:'Anastacia'},
+    {t:'The Time of Our Lives', a:'Il Divo'},
+    {t:'Dai Dai', a:'Shakira'},
+    // FIFA 21
+    {t:'MICE', a:'Aitch'},
+    {t:'Wish I Was Younger', a:'Alfie Templeman'},
+    {t:'Me Gusta', a:'Anitta'},
+    {t:'Unity', a:'Buju Banton'},
+    {t:'Stop This Flame', a:'Celeste'},
+    // FIFA 22
+    {t:'Oliver Twist', a:'ArrDee'},
+    {t:'Good Girls', a:'CHVRCHES'},
+    {t:"I Don't Wanna Talk (I Just Wanna Dance)", a:'Glass Animals'},
+    {t:'Skeletons', a:'easy life'},
+    {t:'Apartment 402', a:'girl in red'},
+    {t:'Talk About It', a:'Jungle'},
+    {t:'Yesterday', a:'Loyle Carner'},
+    {t:'Lifetime', a:'Swedish House Mafia'},
+    {t:'Fear No Man', a:'Little Simz'},
+    // FIFA 23
+    {t:'Ojitos Lindos', a:'Bad Bunny'},
+    {t:'SAOKO', a:'ROSALÍA'},
+    {t:'Nail Tech', a:'Jack Harlow'},
+    {t:'Obsessed With You', a:'Central Cee'},
+    {t:'Waterfall', a:'Disclosure'},
+    {t:'Pull Up', a:'Koffee'},
+    {t:'Rice', a:'Young Fathers'},
+    {t:'Lift Off', a:'Labrinth'},
+    // EA FC 24
+    {t:'Going Kokomo', a:'Royel Otis'},
+    {t:'Nothing Matters', a:'The Last Dinner Party'},
+    {t:'We Can Be Anything', a:'Baby Queen'},
+    {t:'The Hillbillies', a:'Baby Keem'},
+    {t:'For Granted', a:'Yaeji'},
+    {t:"They Don't Love It", a:'Jack Harlow'},
+    {t:'Worms', a:'Ashnikko'},
+    {t:'Passport Bros', a:'Bas'},
+    {t:'Angry', a:'The Rolling Stones'},
+    {t:'6am', a:'Channel Tres'},
+    {t:'Amnesia', a:'M83'},
+    // EA FC 25
+    {t:'So Cold', a:'Balu Brigada'},
+    {t:'CHIHIRO', a:'Billie Eilish'},
+    {t:'Sympathy is a Knife', a:'Charli xcx'},
+    {t:'Did It First', a:'Ice Spice'},
+    {t:'Cheerleader', a:'Porter Robinson'},
+    {t:'Break My Love', a:'RÜFÜS DU SOL'},
+    {t:'Call', a:'Kasabian'},
+    {t:'Daisies', a:'Good Neighbours'},
+    {t:'Richer', a:'AntsLive'},
+    {t:'Trust', a:'Jordan Rakei'},
+    {t:"Everybody's Different", a:'Joe P'},
+    {t:'Come Alive', a:'Phantogram'},
+    {t:'Incredible', a:'Sia'},
+    {t:'Cafuné', a:'Sofi Tukker'},
+    // FIFA 19
+    {t:'Feels Like Summer', a:'Childish Gambino'},
+    {t:'Sorcererz', a:'Gorillaz'},
+    {t:'Gold Rush', a:'Death Cab for Cutie'},
+    {t:'Genius', a:'LSD'},
+    {t:'Big Dreams', a:'Bakar'},
+    {t:'you should see me in a crown', a:'Billie Eilish'},
+    {t:'Peach', a:'Broods'},
+    {t:'Habibi', a:'Ghali'},
+    // FIFA 20
+    {t:'Phone Numbers', a:'Dominic Fike'},
+    {t:'Swing', a:'Sofi Tukker'},
+    {t:'The Runner', a:'Foals'},
+    {t:'Yo x Ti, Tu x Mi', a:'ROSALÍA'},
+    {t:'Same Old Story', a:'Skepta'},
+    {t:'Que Calor', a:'Major Lazer'},
+    {t:'Angel', a:'Loyle Carner'},
+    {t:'Wild West', a:'Dennis Lloyd'},
+    // Iconic classics from FIFA's earlier history
+    {t:'Song 2', a:'Blur'},
+    {t:'The Rockafeller Skank', a:'Fatboy Slim'},
+    {t:'Town Called Malice', a:'The Jam'},
+    {t:'Helicopter', a:'Bloc Party'},
+    {t:'Black & Gold', a:'Sam Sparro'},
+    {t:'Sex on Fire', a:'Kings of Leon'},
+    // FIFA 10
+    {t:'Fuego', a:'Bomba Estéreo'},
+    {t:'Hold the Line', a:'Major Lazer'},
+    {t:'Kalemba (Wegue Wegue)', a:'Buraka Som Sistema'},
+    {t:'Gold Guns Girls', a:'Metric'},
+    {t:"She's Got Me Dancing", a:'Tommy Sparks'},
+    // FIFA 11
+    {t:'I Can Talk', a:'Two Door Cinema Club'},
+    {t:'Flash Delirium', a:'MGMT'},
+    {t:'Blackout', a:'Linkin Park'},
+    {t:'Fire With Fire', a:'Scissor Sisters'},
+    {t:'I Can Change', a:'LCD Soundsystem'},
+    // FIFA 12 / 13
+    {t:'Machu Picchu', a:'The Strokes'},
+    {t:'Top of the World', a:'Imagine Dragons'},
+    // FIFA 14
+    {t:'We Sink', a:'CHVRCHES'},
+    {t:'F for You', a:'Disclosure'},
+    {t:'Love Me Again', a:'John Newman'},
+    {t:'Ratchet', a:'Bloc Party'},
+    // FIFA 15
+    {t:'The Nights', a:'Avicii'},
+    {t:'Cocoon', a:'Catfish and the Bottlemen'},
+    {t:"Busy Earnin'", a:'Jungle'},
+    {t:'Walk', a:'Kwabs'},
+    // FIFA 16
+    {t:'Way Down We Go', a:'Kaleo'},
+    {t:'Omen', a:'Disclosure'},
+    {t:'Cannonball', a:'Skylar Grey'},
+    {t:'Conqueror', a:'AURORA'},
+    // FIFA 17
+    {t:'Shelter', a:'Porter Robinson'},
+    {t:'Youth', a:'Glass Animals'},
+    {t:'Adrenaline', a:'Zedd'},
+    // FIFA 18
+    {t:'Supercut', a:'Lorde'},
+    {t:'Deadcrush', a:'alt-J'},
+    {t:'Live In The Moment', a:'Portugal. The Man'},
+  ] },
 };
 
 // ── State ───────────────────────────────────────────────────────
@@ -247,7 +383,7 @@ let searchCache={};
 // fell back to including songs from any genre — which is how e.g. an R&B
 // song could end up classified as hip-hop.
 function genreMatches(song, genre){
-  if(genre==='all') return true;
+  if(genre==='all'||genre==='fifa') return true;
   const cfg = GENRE_CONFIG[genre];
   const keywords = (cfg && cfg.keywords && cfg.keywords.length) ? cfg.keywords : [genre.replace(/-/g,' ')];
   const songGenre = (song.primaryGenreName||'').toLowerCase();
@@ -255,12 +391,76 @@ function genreMatches(song, genre){
 }
 
 // ── iTunes API ──────────────────────────────────────────────────
+const ERA_RANGES = {
+  '1950':[1950,1959],'1960':[1960,1969],'1970':[1970,1979],
+  '1980':[1980,1989],'1990':[1990,1999],'2000':[2000,2009],
+  '2010':[2010,2019],'2020':[2020,2029]
+};
+function songInEra(song, era){
+  const yearRange = era ? ERA_RANGES[era] : null;
+  if(!yearRange) return true;
+  const raw = song.releaseDate||'';
+  const year = parseInt(raw.substring(0,4));
+  if(isNaN(year)) return true; // can't tell, include it
+  return year >= yearRange[0] && year <= yearRange[1];
+}
+
+// Normalize a title/artist for loose comparison when matching a curated
+// song entry against iTunes search results (handles case, punctuation,
+// and "feat."/bracketed suffixes).
+function normForMatch(s){
+  return (s||'')
+    .toLowerCase()
+    .replace(/\(feat[^)]*\)/g,'')
+    .replace(/\[[^\]]*\]/g,'')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+// Look up one curated {t: title, a: artist} entry on iTunes and return the
+// best-matching result (or null if nothing close enough was found).
+async function fetchCuratedSong(entry){
+  try{
+    const url=`https://itunes.apple.com/search?term=${encodeURIComponent(entry.t+' '+entry.a)}&mediaType=music&limit=5&entity=song`;
+    const res=await fetch(url);
+    const data=await res.json();
+    const results=(data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+    const nTitle=normForMatch(entry.t), nArtist=normForMatch(entry.a);
+    // Prefer a result whose title matches closely and whose artist credit
+    // contains the artist we searched for (credits often list multiple
+    // featured artists, so use "includes" rather than exact equality).
+    let best = results.find(s=>{
+      const st=normForMatch(s.trackName), sa=normForMatch(s.artistName);
+      return (st===nTitle||st.includes(nTitle)||nTitle.includes(st)) && sa.includes(nArtist);
+    });
+    if(!best) best = results[0]||null;
+    return best;
+  }catch(e){ return null; }
+}
+
 async function fetchSongs(genre, era){
   const cacheKey=genre+'|'+era;
   if(searchCache[cacheKey]) return searchCache[cacheKey];
 
   setStatus('Finding songs...');
   const cfg = GENRE_CONFIG[genre]||GENRE_CONFIG.all;
+
+  // FIFA / EA FC & World Cup: curated song list, looked up individually
+  // instead of filtered by genre tag (these soundtracks span every genre).
+  if(cfg.curated){
+    setStatus('Loading FIFA & World Cup tracks...');
+    const found = await Promise.all(cfg.curated.map(fetchCuratedSong));
+    const seen = new Set();
+    let allSongs = [];
+    for(const s of found){
+      if(!s||seen.has(s.trackId)) continue;
+      if(!songInEra(s, era)) continue;
+      seen.add(s.trackId);
+      allSongs.push(s);
+    }
+    searchCache[cacheKey] = allSongs;
+    return allSongs;
+  }
+
   const eraTerms = {'1950':'1950s','1960':'1960s','1970':'1970s','1980':'1980s','1990':'1990s','2000':'2000s','2010':'2010s','2020':'2020s'};
   const eraTerm = (era && eraTerms[era]) ? eraTerms[era] : '';
 
@@ -291,22 +491,6 @@ async function fetchSongs(genre, era){
 
   const results = await Promise.all(fetches);
 
-  // Era year range
-  const eraRanges = {
-    '1950':[1950,1959],'1960':[1960,1969],'1970':[1970,1979],
-    '1980':[1980,1989],'1990':[1990,1999],'2000':[2000,2009],
-    '2010':[2010,2019],'2020':[2020,2029]
-  };
-  const yearRange = era ? eraRanges[era] : null;
-
-  function inEra(song){
-    if(!yearRange) return true;
-    const raw = song.releaseDate||'';
-    const year = parseInt(raw.substring(0,4));
-    if(isNaN(year)) return true; // can't tell, include it
-    return year >= yearRange[0] && year <= yearRange[1];
-  }
-
   // Merge, deduplicate by trackId, filter by genre AND era
   const seen = new Set();
   for(const batch of results){
@@ -314,7 +498,7 @@ async function fetchSongs(genre, era){
       if(!s.previewUrl||!s.trackName||!s.artistName) continue;
       if(seen.has(s.trackId)) continue;
       seen.add(s.trackId);
-      if(genreMatches(s, genre) && inEra(s)) allSongs.push(s);
+      if(genreMatches(s, genre) && songInEra(s, era)) allSongs.push(s);
     }
   }
 
@@ -325,7 +509,7 @@ async function fetchSongs(genre, era){
       for(const s of batch){
         if(!s.previewUrl||!s.trackName||!s.artistName) continue;
         if(seen2.has(s.trackId)) continue;
-        if(!inEra(s)) continue; // era is always strict
+        if(!songInEra(s, era)) continue; // era is always strict
         seen2.add(s.trackId);
         allSongs.push(s);
       }
