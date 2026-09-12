@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SoundSnap — Guess the song</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--surface:#111;--s2:#181818;--s3:#202020;
+  --border:#252525;--b2:#303030;
+  --green:#d7263d;--green-h:#ff4d5e;--text:#f0f0f0;--t2:#999;--t3:#555;
+  --red:#e74c3c;--yellow:#f39c12;--purple:#9b59b6;--orange:#e67e22;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+.shell{max-width:660px;margin:0 auto;padding:0 18px 40px}
+header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.5px}
+.logo span{color:var(--green)}
+.hstats{display:flex;gap:18px}
+.hstat{text-align:center}
+.hstat-n{font-size:18px;font-weight:600;font-family:'Space Grotesk',sans-serif}
+.hstat-l{font-size:10px;color:var(--t3);letter-spacing:.05em;margin-top:1px}
+
+/* Filter row */
+.filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.filter-row select{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer}
+.filter-row select:focus{outline:none;border-color:var(--green)}
+
+/* Difficulty */
+.diff-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.diff-pill{flex:1;min-width:60px;padding:7px 4px;border-radius:20px;border:1px solid var(--b2);background:transparent;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;text-align:center;color:var(--t3)}
+.diff-pill[data-d="easy"].active{background:#1db95420;border-color:#1db95460;color:#1db954}
+.diff-pill[data-d="medium"].active{background:#f39c1220;border-color:#f39c1260;color:var(--yellow)}
+.diff-pill[data-d="hard"].active{background:#e67e2220;border-color:#e67e2260;color:var(--orange)}
+.diff-pill[data-d="expert"].active{background:#e74c3c20;border-color:#e74c3c60;color:var(--red)}
+.diff-pill[data-d="impossible"].active{background:#9b59b620;border-color:#9b59b660;color:var(--purple)}
+.diff-hint{font-size:11px;color:var(--t3);margin-bottom:12px;min-height:14px}
+
+/* Start time toggle */
+.start-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.start-lbl{font-size:12px;color:var(--t3)}
+.start-btns{display:flex;gap:5px}
+.start-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.start-btn.active{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+
+/* Player */
+.player{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.clip-row{display:flex;gap:5px;margin-bottom:16px}
+.cp{flex:1;padding:6px 0;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);font-size:11px;font-family:'Inter',sans-serif;cursor:default;transition:all .15s;text-align:center}
+.cp.on{color:var(--t2);cursor:pointer}
+.cp.cur{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.cp.done{background:var(--s2);color:var(--t3)}
+.wf{display:flex;align-items:center;gap:2px;height:52px;margin-bottom:16px}
+.wb{flex:1;border-radius:2px;background:var(--s3);transition:background .04s}
+.wb.p{background:#d7263d55}.wb.a{background:var(--green)}
+.play-row{display:flex;align-items:center;gap:14px}
+.pbtn{width:52px;height:52px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s}
+.pbtn:hover{background:var(--green-h);transform:scale(1.04)}
+.pbtn:active{transform:scale(.96)}
+.tinfo{display:flex;flex-direction:column;gap:2px}
+.tcur{font-size:20px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--green)}
+.ttot{font-size:11px;color:var(--t3)}
+.status-txt{font-size:11px;color:var(--t3);margin-top:1px;min-height:14px}
+
+/* Guesses */
+.glist{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.gi{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;font-size:13px}
+.gi.wr{background:#e74c3c12;border:1px solid #e74c3c30;color:var(--red)}
+.gi.sk{background:var(--s2);border:1px solid var(--border);color:var(--t3)}
+
+/* Search */
+.sw{position:relative;margin-bottom:9px}
+.si{width:100%;padding:11px 14px 11px 40px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .15s}
+.si:focus{outline:none;border-color:var(--green)}
+.sico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;pointer-events:none}
+.sdrop{position:absolute;top:calc(100%+4px);left:0;right:0;background:var(--s2);border:1px solid var(--b2);border-radius:10px;overflow:hidden;z-index:20;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px #0008}
+.sdi{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.sdi:last-child{border-bottom:none}
+.sdi:hover{background:var(--s3)}
+.sdi-t{font-size:13px;font-weight:500}
+.sdi-m{font-size:11px;color:var(--t3);margin-top:1px}
+
+.arow{display:flex;gap:8px;flex-wrap:wrap}
+.brerl{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.brerl:hover{border-color:var(--green);color:var(--green)}
+.bskip{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.bskip:hover{border-color:var(--t3);color:var(--text)}
+.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+.bguess:hover{background:var(--green-h)}
+
+/* Result */
+.rcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
+.album-art{width:80px;height:80px;border-radius:8px;margin:0 auto 12px;display:block;object-fit:cover;background:var(--s2)}
+.rsong{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;margin-bottom:3px}
+.rart{font-size:13px;color:var(--t2);margin-bottom:14px}
+.rbadges{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.rb{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid}
+.rb-g{background:#d7263d15;border-color:#d7263d45;color:var(--green)}
+.rb-r{background:#e74c3c15;border-color:#e74c3c45;color:var(--red)}
+.rb-n{background:var(--s2);border-color:var(--b2);color:var(--t2)}
+.ract{display:flex;gap:8px;justify-content:center}
+.byt{padding:9px 16px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:13px;text-decoration:none;font-family:'Inter',sans-serif;transition:all .15s}
+.byt:hover{border-color:var(--t3);color:var(--text)}
+.bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+.bnext:hover{background:var(--green-h)}
+
+.no-song{text-align:center;padding:20px;color:var(--t3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="logo">Sound<span>Snap</span></div>
+    <div class="hstats">
+      <div class="hstat"><div class="hstat-n" id="sc">0</div><div class="hstat-l">correct</div></div>
+      <div class="hstat"><div class="hstat-n" id="ss">0</div><div class="hstat-l">streak</div></div>
+      <div class="hstat"><div class="hstat-n" id="sp">0</div><div class="hstat-l">played</div></div>
+    </div>
+  </header>
+
+  <div class="filter-row">
+    <select id="sel-genre">
+      <option value="all">🎵 All genres</option>
+      <option value="pop">🎤 Pop</option>
+      <option value="hiphop">🎧 Hip-hop &amp; Rap</option>
+      <option value="rnb">🎶 R&amp;B &amp; Soul</option>
+      <option value="rock">🎸 Rock</option>
+      <option value="electronic">🎛️ Electronic</option>
+      <option value="roots">🪕 Roots</option>
+      <option value="jazzclassical">🎷 Jazz &amp; Classical</option>
+      <option value="latin">🌴 Latin</option>
+      <option value="kpop">🇰🇷 K-pop</option>
+      <option value="jpop">🎌 J-pop &amp; Anime</option>
+      <option value="global">🌍 Global</option>
+      <option value="fifa">⚽ FIFA / EA FC &amp; World Cup</option>
+      <option value="other">🎬 Soundtracks &amp; More</option>
+    </select>
+    <select id="sel-era">
+      <option value="">Any era</option>
+      <option value="1950">1950s</option>
+      <option value="1960">1960s</option>
+      <option value="1970">1970s</option>
+      <option value="1980">1980s</option>
+      <option value="1990">1990s</option>
+      <option value="2000">2000s</option>
+      <option value="2010">2010s</option>
+      <option value="2020">2020s</option>
+    </select>
+  </div>
+
+  <!-- Difficulty -->
+  <div class="diff-row" id="diff-row">
+    <button class="diff-pill active" data-d="easy">Easy</button>
+    <button class="diff-pill" data-d="medium">Medium</button>
+    <button class="diff-pill" data-d="hard">Hard</button>
+    <button class="diff-pill" data-d="expert">Expert</button>
+    <button class="diff-pill" data-d="impossible">Impossible</button>
+  </div>
+  <div class="diff-hint" id="diff-hint"></div>
+
+  <!-- Start time -->
+  <div class="start-row">
+    <span class="start-lbl">Start song at:</span>
+    <div class="start-btns">
+      <button class="start-btn active" data-s="0">Beginning</button>
+      <button class="start-btn" data-s="30">30s in</button>
+    </div>
+  </div>
+
+  <!-- Player -->
+  <div class="player">
+    <div class="clip-row" id="clip-row"></div>
+    <div class="wf" id="wf"></div>
+    <div class="play-row">
+      <button class="pbtn" id="pbtn" aria-label="Play clip">&#9654;</button>
+      <div class="tinfo">
+        <div class="tcur" id="tcur">0.0s</div>
+        <div class="ttot" id="ttot">of 0.1s</div>
+        <div class="status-txt" id="status-txt">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glist" id="glist"></div>
+
+  <div id="game-area">
+    <div class="sw">
+      <span class="sico">&#128269;</span>
+      <input class="si" id="ginput" placeholder="Search song or artist..." autocomplete="off"/>
+      <div class="sdrop" id="sdrop" style="display:none"></div>
+    </div>
+    <div class="arow">
+      <button class="bskip" id="bskip">Skip</button>
+      <button class="bguess" id="bguess">Guess</button>
+      <button class="brerl" id="breroll" title="Get a different song at this difficulty">🔀 Reroll</button>
+      <button class="brerl" id="brerollall" title="Get a different song on every difficulty">🎲 Reroll All</button>
+    </div>
+  </div>
+
+  <div id="result-area" style="display:none"></div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+const DIFFS = {
+  easy:       { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Top chart hits' },
+  medium:     { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Broader song mix' },
+  hard:       { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Less popular tracks included' },
+  expert:     { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Deep cuts and B-sides' },
+  impossible: { clips:[0.1,0.5,2,8,15], hint:'0.1s → 0.5s → 2s → 8s → 15s  •  Anything goes 💀' },
+};
+
+// Each genre group has: iTunes genre IDs, search terms, and keyword filters
+const GENRE_CONFIG = {
+  all:          { ids:[], terms:['top hits music','popular songs','billboard hits'], keywords:[] },
+  // Pop: must be tagged Pop by iTunes — not hip-hop or r&b
+  pop:          { ids:['14'], terms:['pop music','pop hits','pop songs','dance pop'], keywords:['pop'] },
+  // Hip-hop: must contain hip-hop/rap — excludes r&b and pop only
+  hiphop:       { ids:['18'], terms:['hip hop music','rap music','hip-hop songs','trap music'], keywords:['hip-hop','hip hop','rap','trap','drill'] },
+  // R&B: soul and r&b only
+  rnb:          { ids:['15'], terms:['rnb music','r&b soul','rhythm blues','neo soul'], keywords:['r&b','soul','rhythm and blues','neo soul','motown'] },
+  // Rock: any rock subgenre — uses iTunes genre IDs as primary filter
+  rock:         { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','alternative rock','heavy metal','punk rock','grunge'], keywords:['rock','alternative','indie rock','metal','punk','grunge','hard rock','classic rock','emo','alternative rock'] },
+  // Electronic: dance/electronic subgenres only
+  electronic:   { ids:['7','1026','17'], terms:['electronic dance music','house music','techno edm','disco funk'], keywords:['electronic','dance','house','techno','trance','edm','club','disco','funk','electro'] },
+  // Roots: country/folk/blues/reggae
+  roots:        { ids:['6','16','2','24'], terms:['country music','folk acoustic','blues music','reggae dancehall'], keywords:['country','folk','blues','reggae','dancehall','ska','bluegrass','americana'] },
+  jazzclassical:{ ids:['11','5'], terms:['jazz music','classical orchestra','smooth jazz','symphony','bebop'], keywords:['jazz','classical','orchestral','symphony','opera','bebop','swing','chamber','baroque'] },
+  latin:        { ids:['12'], terms:['latin music','reggaeton','salsa','latin pop','bachata'], keywords:['latin','reggaeton','salsa','bachata','cumbia','latin pop','merengue'] },
+  kpop:         { ids:['51'], terms:['kpop music','korean pop','k-pop'], keywords:['k-pop','kpop','korean'] },
+  jpop:         { ids:['27'], terms:['jpop music','japanese pop','j-pop','anime music'], keywords:['j-pop','jpop','japanese','anime'] },
+  global:       { ids:['19','1286'], terms:['afrobeats music','world music','afropop'], keywords:['afrobeats','afro','world','celtic','indian','african'] },
+  other:        { ids:['10','22','13'], terms:['movie soundtrack','gospel music','ambient music','film score','christian worship'], keywords:['soundtrack','score','film','gospel','christian','worship','ambient','new age','cinematic'] },
+  // FIFA / EA FC soundtracks and World Cup songs span every musical genre,
+  // so there's no iTunes genre tag to filter by. Instead this is a curated
+  // list of actual songs from the games' official soundtracks and FIFA
+  // World Cup anthems — each one gets looked up on iTunes by name.
+  fifa: { curated: [
+    // World Cup official songs
+    {t:'Waka Waka (This Time for Africa)', a:'Shakira'},
+    {t:'We Are One (Ole Ola)', a:'Pitbull'},
+    {t:'Live It Up', a:'Nicky Jam'},
+    {t:'Hayya Hayya (Better Together)', a:'Trinidad Cardona'},
+    {t:'Tukoh Taka', a:'Nicki Minaj'},
+    {t:'Arhbo', a:'Ozuna'},
+    {t:'Light the Sky', a:'Balqees'},
+    {t:'Dreamers', a:'Jung Kook'},
+    {t:'Colors', a:'Jason Derulo'},
+    {t:'Cup of Life', a:'Ricky Martin'},
+    {t:'Boom', a:'Anastacia'},
+    {t:'The Time of Our Lives', a:'Il Divo'},
+    {t:'Dai Dai', a:'Shakira'},
+    // FIFA 21
+    {t:'MICE', a:'Aitch'},
+    {t:'Wish I Was Younger', a:'Alfie Templeman'},
+    {t:'Me Gusta', a:'Anitta'},
+    {t:'Unity', a:'Buju Banton'},
+    {t:'Stop This Flame', a:'Celeste'},
+    // FIFA 22
+    {t:'Oliver Twist', a:'ArrDee'},
+    {t:'Good Girls', a:'CHVRCHES'},
+    {t:"I Don't Wanna Talk (I Just Wanna Dance)", a:'Glass Animals'},
+    {t:'Skeletons', a:'easy life'},
+    {t:'Apartment 402', a:'girl in red'},
+    {t:'Talk About It', a:'Jungle'},
+    {t:'Yesterday', a:'Loyle Carner'},
+    {t:'Lifetime', a:'Swedish House Mafia'},
+    {t:'Fear No Man', a:'Little Simz'},
+    // FIFA 23
+    {t:'Ojitos Lindos', a:'Bad Bunny'},
+    {t:'SAOKO', a:'ROSALÍA'},
+    {t:'Nail Tech', a:'Jack Harlow'},
+    {t:'Obsessed With You', a:'Central Cee'},
+    {t:'Waterfall', a:'Disclosure'},
+    {t:'Pull Up', a:'Koffee'},
+    {t:'Rice', a:'Young Fathers'},
+    {t:'Lift Off', a:'Labrinth'},
+    // EA FC 24
+    {t:'Going Kokomo', a:'Royel Otis'},
+    {t:'Nothing Matters', a:'The Last Dinner Party'},
+    {t:'We Can Be Anything', a:'Baby Queen'},
+    {t:'The Hillbillies', a:'Baby Keem'},
+    {t:'For Granted', a:'Yaeji'},
+    {t:"They Don't Love It", a:'Jack Harlow'},
+    {t:'Worms', a:'Ashnikko'},
+    {t:'Passport Bros', a:'Bas'},
+    {t:'Angry', a:'The Rolling Stones'},
+    {t:'6am', a:'Channel Tres'},
+    {t:'Amnesia', a:'M83'},
+    // EA FC 25
+    {t:'So Cold', a:'Balu Brigada'},
+    {t:'CHIHIRO', a:'Billie Eilish'},
+    {t:'Sympathy is a Knife', a:'Charli xcx'},
+    {t:'Did It First', a:'Ice Spice'},
+    {t:'Cheerleader', a:'Porter Robinson'},
+    {t:'Break My Love', a:'RÜFÜS DU SOL'},
+    {t:'Call', a:'Kasabian'},
+    {t:'Daisies', a:'Good Neighbours'},
+    {t:'Richer', a:'AntsLive'},
+    {t:'Trust', a:'Jordan Rakei'},
+    {t:"Everybody's Different", a:'Joe P'},
+    {t:'Come Alive', a:'Phantogram'},
+    {t:'Incredible', a:'Sia'},
+    {t:'Cafuné', a:'Sofi Tukker'},
+    // FIFA 19
+    {t:'Feels Like Summer', a:'Childish Gambino'},
+    {t:'Sorcererz', a:'Gorillaz'},
+    {t:'Gold Rush', a:'Death Cab for Cutie'},
+    {t:'Genius', a:'LSD'},
+    {t:'Big Dreams', a:'Bakar'},
+    {t:'you should see me in a crown', a:'Billie Eilish'},
+    {t:'Peach', a:'Broods'},
+    {t:'Habibi', a:'Ghali'},
+    // FIFA 20
+    {t:'Phone Numbers', a:'Dominic Fike'},
+    {t:'Swing', a:'Sofi Tukker'},
+    {t:'The Runner', a:'Foals'},
+    {t:'Yo x Ti, Tu x Mi', a:'ROSALÍA'},
+    {t:'Same Old Story', a:'Skepta'},
+    {t:'Que Calor', a:'Major Lazer'},
+    {t:'Angel', a:'Loyle Carner'},
+    {t:'Wild West', a:'Dennis Lloyd'},
+    // Iconic classics from FIFA's earlier history
+    {t:'Song 2', a:'Blur'},
+    {t:'The Rockafeller Skank', a:'Fatboy Slim'},
+    {t:'Town Called Malice', a:'The Jam'},
+    {t:'Helicopter', a:'Bloc Party'},
+    {t:'Black & Gold', a:'Sam Sparro'},
+    {t:'Sex on Fire', a:'Kings of Leon'},
+    // FIFA 10
+    {t:'Fuego', a:'Bomba Estéreo'},
+    {t:'Hold the Line', a:'Major Lazer'},
+    {t:'Kalemba (Wegue Wegue)', a:'Buraka Som Sistema'},
+    {t:'Gold Guns Girls', a:'Metric'},
+    {t:"She's Got Me Dancing", a:'Tommy Sparks'},
+    // FIFA 11
+    {t:'I Can Talk', a:'Two Door Cinema Club'},
+    {t:'Flash Delirium', a:'MGMT'},
+    {t:'Blackout', a:'Linkin Park'},
+    {t:'Fire With Fire', a:'Scissor Sisters'},
+    {t:'I Can Change', a:'LCD Soundsystem'},
+    // FIFA 12 / 13
+    {t:'Machu Picchu', a:'The Strokes'},
+    {t:'Top of the World', a:'Imagine Dragons'},
+    // FIFA 14
+    {t:'We Sink', a:'CHVRCHES'},
+    {t:'F for You', a:'Disclosure'},
+    {t:'Love Me Again', a:'John Newman'},
+    {t:'Ratchet', a:'Bloc Party'},
+    // FIFA 15
+    {t:'The Nights', a:'Avicii'},
+    {t:'Cocoon', a:'Catfish and the Bottlemen'},
+    {t:"Busy Earnin'", a:'Jungle'},
+    {t:'Walk', a:'Kwabs'},
+    // FIFA 16
+    {t:'Way Down We Go', a:'Kaleo'},
+    {t:'Omen', a:'Disclosure'},
+    {t:'Cannonball', a:'Skylar Grey'},
+    {t:'Conqueror', a:'AURORA'},
+    // FIFA 17
+    {t:'Shelter', a:'Porter Robinson'},
+    {t:'Youth', a:'Glass Animals'},
+    {t:'Adrenaline', a:'Zedd'},
+    // FIFA 18
+    {t:'Supercut', a:'Lorde'},
+    {t:'Deadcrush', a:'alt-J'},
+    {t:'Live In The Moment', a:'Portugal. The Man'},
+  ] },
+};
+
+// ── State ───────────────────────────────────────────────────────
+let selGenre='pop', selEra='', selDiff='easy', startOffset=0;
+let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
+let audio=null, waveAnim=null, tickTO=null, stopTO=null;
+let stats={c:0,s:0,p:0};
+let songPool=[];
+let pickQueues={}; // key -> {order:[], ptr:0, lastId:null} — one shuffle bag per genre|era|diff combo
+let diffStates={}; // difficulty -> saved round {curSong, guesses, clipIdx, finished, resultHTML}
+let searchCache={};
+
+// ── Genre matching ─────────────────────────────────────────────
+// Use the per-genre keyword lists already defined on GENRE_CONFIG (they're
+// correctly curated and keyed to the actual genre values, e.g. 'hiphop',
+// 'rnb'). Previously this used a separate, mismatched keyword table (keys
+// like 'hip-hop' / 'r-b-soul' that never matched the real 'hiphop' / 'rnb'
+// values), so genre filtering silently failed for nearly every genre and
+// fell back to including songs from any genre — which is how e.g. an R&B
+// song could end up classified as hip-hop.
+function genreMatches(song, genre){
+  if(genre==='all'||genre==='fifa') return true;
+  const cfg = GENRE_CONFIG[genre];
+  const keywords = (cfg && cfg.keywords && cfg.keywords.length) ? cfg.keywords : [genre.replace(/-/g,' ')];
+  const songGenre = (song.primaryGenreName||'').toLowerCase();
+  return keywords.some(kw=>songGenre.includes(kw));
+}
+
+// ── iTunes API ──────────────────────────────────────────────────
+const ERA_RANGES = {
+  '1950':[1950,1959],'1960':[1960,1969],'1970':[1970,1979],
+  '1980':[1980,1989],'1990':[1990,1999],'2000':[2000,2009],
+  '2010':[2010,2019],'2020':[2020,2029]
+};
+function songInEra(song, era){
+  const yearRange = era ? ERA_RANGES[era] : null;
+  if(!yearRange) return true;
+  const raw = song.releaseDate||'';
+  const year = parseInt(raw.substring(0,4));
+  if(isNaN(year)) return true; // can't tell, include it
+  return year >= yearRange[0] && year <= yearRange[1];
+}
+
+// Normalize a title/artist for loose comparison when matching a curated
+// song entry against iTunes search results (handles case, punctuation,
+// and "feat."/bracketed suffixes).
+function normForMatch(s){
+  return (s||'')
+    .toLowerCase()
+    .replace(/\(feat[^)]*\)/g,'')
+    .replace(/\[[^\]]*\]/g,'')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+// Look up one curated {t: title, a: artist} entry on iTunes and return the
+// best-matching result (or null if nothing close enough was found).
+async function fetchCuratedSong(entry){
+  try{
+    const url=`https://itunes.apple.com/search?term=${encodeURIComponent(entry.t+' '+entry.a)}&mediaType=music&limit=5&entity=song`;
+    const res=await fetch(url);
+    const data=await res.json();
+    const results=(data.results||[]).filter(s=>s.previewUrl&&s.trackName&&s.artistName);
+    const nTitle=normForMatch(entry.t), nArtist=normForMatch(entry.a);
+    // Prefer a result whose title matches closely and whose artist credit
+    // contains the artist we searched for (credits often list multiple
+    // featured artists, so use "includes" rather than exact equality).
+    let best = results.find(s=>{
+      const st=normForMatch(s.trackName), sa=normForMatch(s.artistName);
+      return (st===nTitle||st.includes(nTitle)||nTitle.includes(st)) && sa.includes(nArtist);
+    });
+    if(!best) best = results[0]||null;
+    return best;
+  }catch(e){ return null; }
+}
+
+async function fetchSongs(genre, era){
+  const cacheKey=genre+'|'+era;
+  if(searchCache[cacheKey]) return searchCache[cacheKey];
+
+  setStatus('Finding songs...');
+  const cfg = GENRE_CONFIG[genre]||GENRE_CONFIG.all;
+
+  // FIFA / EA FC & World Cup: curated song list, looked up individually
+  // instead of filtered by genre tag (these soundtracks span every genre).
+  if(cfg.curated){
+    setStatus('Loading FIFA & World Cup tracks...');
+    const found = await Promise.all(cfg.curated.map(fetchCuratedSong));
+    const seen = new Set();
+    let allSongs = [];
+    for(const s of found){
+      if(!s||seen.has(s.trackId)) continue;
+      if(!songInEra(s, era)) continue;
+      seen.add(s.trackId);
+      allSongs.push(s);
+    }
+    searchCache[cacheKey] = allSongs;
+    return allSongs;
+  }
+
+  const eraTerms = {'1950':'1950s','1960':'1960s','1970':'1970s','1980':'1980s','1990':'1990s','2000':'2000s','2010':'2010s','2020':'2020s'};
+  const eraTerm = (era && eraTerms[era]) ? eraTerms[era] : '';
+
+  let allSongs = [];
+
+  // Fetch using multiple search terms to maximise results (especially for era+genre combos)
+  const searchTerms = cfg.terms.slice(0, 3); // use up to 3 terms
+  const genreIds = cfg.ids.slice(0, 2); // use up to 2 genre IDs
+
+  const fetches = [];
+
+  for(const term of searchTerms){
+    const q = eraTerm ? `${eraTerm} ${term}` : term;
+    fetches.push(
+      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&limit=100&entity=song`)
+        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
+    );
+  }
+
+  // Also fetch by genreId if available
+  for(const gid of genreIds){
+    const q = eraTerm ? eraTerm : (searchTerms[0]||genre);
+    fetches.push(
+      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&genreId=${gid}&limit=100&entity=song`)
+        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
+    );
+  }
+
+  const results = await Promise.all(fetches);
+
+  // Merge, deduplicate by trackId, filter by genre AND era
+  const seen = new Set();
+  for(const batch of results){
+    for(const s of batch){
+      if(!s.previewUrl||!s.trackName||!s.artistName) continue;
+      if(seen.has(s.trackId)) continue;
+      seen.add(s.trackId);
+      if(genreMatches(s, genre) && songInEra(s, era)) allSongs.push(s);
+    }
+  }
+
+  // If strict filter left too few, relax genre but keep era strict
+  if(allSongs.length < 10){
+    const seen2 = new Set(allSongs.map(s=>s.trackId));
+    for(const batch of results){
+      for(const s of batch){
+        if(!s.previewUrl||!s.trackName||!s.artistName) continue;
+        if(seen2.has(s.trackId)) continue;
+        if(!songInEra(s, era)) continue; // era is always strict
+        seen2.add(s.trackId);
+        allSongs.push(s);
+      }
+    }
+  }
+
+  searchCache[cacheKey] = allSongs;
+  return allSongs;
+}
+
+async function searchForGuess(query, isRetry){
+  if(!query) return [];
+  try {
+    const url=`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&mediaType=music&limit=12&entity=song`;
+    const res=await fetch(url);
+    const data=await res.json();
+    return (data.results||[]).filter(s=>s.trackName&&s.artistName);
+  } catch(e){
+    // iTunes search occasionally hiccups — retry once before giving up,
+    // since silently returning nothing is part of why the dropdown could
+    // seem to randomly not appear.
+    if(!isRetry) return searchForGuess(query, true);
+    return [];
+  }
+}
+
+// ── Audio ───────────────────────────────────────────────────────
+function stopAudio(){
+  if(audio){try{audio.pause();}catch(e){}}
+  clearTimeout(stopTO);clearTimeout(tickTO);clearInterval(waveAnim);
+  isPlaying=false;
+  document.getElementById('pbtn').innerHTML='&#9654;';
+  document.querySelectorAll('.wb').forEach(b=>b.classList.remove('p','a'));
+}
+
+function setStatus(txt){ document.getElementById('status-txt').textContent=txt||''; }
+
+// ── Correct-answer ding ─────────────────────────────────────────
+let dingCtx=null;
+function playDing(){
+  try{
+    dingCtx = dingCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=dingCtx, now=ctx.currentTime;
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(1318.5, now+0.1);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.28, now+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now+0.4);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now+0.42);
+  }catch(e){}
+}
+
+async function playClip(){
+  if(!curSong) return;
+  if(isPlaying){stopAudio();return;}
+
+  const dur = DIFFS[selDiff].clips[clipIdx];
+
+  if(!audio || audio.dataset.src !== curSong.previewUrl){
+    audio = new Audio();
+    audio.crossOrigin='anonymous';
+    audio.dataset.src = curSong.previewUrl;
+    audio.src = curSong.previewUrl;
+    setStatus('Loading audio...');
+    try { await audio.load(); } catch(e){}
+  }
+
+  setStatus('');
+
+  // Wait for audio to be ready enough to seek
+  await new Promise(resolve => {
+    if(audio.readyState >= 2){ resolve(); return; }
+    audio.addEventListener('canplay', resolve, {once:true});
+    setTimeout(resolve, 3000); // fallback timeout
+  });
+
+  // Seek to start offset — iTunes previews are 30s so cap at 10s for "30s in" mode
+  const maxSeek = Math.max(0, (audio.duration||30) - 15);
+  const seekTo = Math.min(startOffset, maxSeek);
+  audio.currentTime = seekTo;
+
+  try { await audio.play(); } catch(e){ setStatus('Audio blocked — click again'); return; }
+
+  isPlaying=true;
+  document.getElementById('pbtn').innerHTML='&#9646;&#9646;';
+
+  // Waveform animation
+  const bars=document.querySelectorAll('.wb');
+  const n=bars.length;
+  let elapsed=0;
+  clearInterval(waveAnim);
+  bars.forEach(b=>b.classList.remove('p','a'));
+  waveAnim=setInterval(()=>{
+    elapsed+=50;
+    const prog=Math.min(elapsed/(dur*1000),1);
+    const idx=Math.floor(prog*n);
+    bars.forEach((b,i)=>{b.classList.remove('p','a');if(i<idx)b.classList.add('p');else if(i===idx)b.classList.add('a');});
+  },50);
+
+  // Tick timer
+  let t=0;
+  const tick=()=>{t=Math.min(t+0.1,dur);document.getElementById('tcur').textContent=t.toFixed(1)+'s';if(t<dur)tickTO=setTimeout(tick,100);};
+  tick();
+
+  // Auto-stop after clip duration
+  stopTO=setTimeout(()=>{stopAudio();document.getElementById('tcur').textContent=dur.toFixed(1)+'s';},dur*1000);
+}
+
+// ── Waveform ────────────────────────────────────────────────────
+function buildWave(){
+  const wf=document.getElementById('wf');wf.innerHTML='';
+  for(let i=0;i<64;i++){
+    const b=document.createElement('div');b.className='wb';
+    b.style.height=(8+Math.random()*84)+'%';wf.appendChild(b);
+  }
+}
+
+// ── Clips ───────────────────────────────────────────────────────
+function buildClips(){
+  const row=document.getElementById('clip-row');row.innerHTML='';
+  DIFFS[selDiff].clips.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='cp'+(i===0?' on cur':'');
+    b.textContent=s+'s';
+    b.onclick=()=>{if(i<=clipIdx){clipIdx=i;updateClips();stopAudio();playClip();}};
+    row.appendChild(b);
+  });
+}
+
+function updateClips(){
+  const clips=DIFFS[selDiff].clips;
+  document.querySelectorAll('.cp').forEach((b,i)=>{
+    b.className='cp'+(i<clipIdx?' on done':i===clipIdx?' on cur':'');
+  });
+  document.getElementById('tcur').textContent='0.0s';
+  document.getElementById('ttot').textContent='of '+clips[clipIdx]+'s';
+}
+
+// ── Guesses ─────────────────────────────────────────────────────
+function renderGuesses(){
+  const l=document.getElementById('glist');l.innerHTML='';
+  guesses.forEach(g=>{
+    const d=document.createElement('div');
+    d.className='gi '+(g.sk?'sk':'wr');
+    d.textContent=g.sk?'— Skipped':'✗ '+g.text;
+    l.appendChild(d);
+  });
+}
+
+// ── Search (live iTunes) ────────────────────────────────────────
+let searchTO=null;
+let searchSeq=0;
+
+function buildSearch(){
+  const inp=document.getElementById('ginput');
+  const dd=document.getElementById('sdrop');
+  inp.value='';dd.style.display='none';
+  inp.oninput=()=>{
+    clearTimeout(searchTO);
+    const q=inp.value.trim();
+    // Require a couple characters — a single letter matches too broadly
+    // (mostly irrelevant results) and risks surfacing the answer before
+    // the player has actually typed enough to have found it themselves.
+    if(q.length<2){dd.style.display='none';return;}
+    // Short debounce so results feel near-instant after each keystroke,
+    // while still not firing a request per single keypress on fast typers.
+    const mySeq=++searchSeq;
+    searchTO=setTimeout(async()=>{
+      const results=await searchForGuess(q);
+      // Ignore this response if a newer keystroke has already superseded
+      // it — without this, a slower response to an earlier letter could
+      // land after a faster one and show stale results, which is what
+      // made the dropdown feel like it was randomly bugging out.
+      if(mySeq!==searchSeq) return;
+      // NOTE: we intentionally do NOT filter out the current song here.
+      // If the player has typed enough of the real title/artist for it to
+      // legitimately show up in results, that's them finding the answer
+      // themselves — hiding it just leaves a list of only-wrong options.
+      showDropdown(results.slice(0,9), dd);
+    }, 150);
+  };
+}
+
+function showDropdown(songs, dd){
+  if(!songs.length){dd.style.display='none';return;}
+  dd.innerHTML='';dd.style.display='block';
+  songs.forEach(s=>{
+    const item=document.createElement('div');item.className='sdi';
+    item.innerHTML=`<div class="sdi-t">${s.trackName}</div><div class="sdi-m">${s.artistName} &bull; ${s.collectionName||''}</div>`;
+    item.onclick=()=>{
+      document.getElementById('ginput').value=s.trackName+' \u2014 '+s.artistName;
+      dd.style.display='none';
+    };
+    dd.appendChild(item);
+  });
+}
+
+// ── Game logic ──────────────────────────────────────────────────
+function skip(){
+  guesses.push({sk:true});renderGuesses();stopAudio();
+  const clips=DIFFS[selDiff].clips;
+  if(clipIdx<clips.length-1){clipIdx++;updateClips();}
+  else endGame(false);
+  document.getElementById('ginput').value='';
+  document.getElementById('sdrop').style.display='none';
+}
+
+function doGuess(){
+  const val=document.getElementById('ginput').value.trim();
+  if(!val)return;
+  const title=curSong.trackName.toLowerCase();
+  const input=val.toLowerCase().split('\u2014')[0].trim();
+  const won=title.includes(input)||input.includes(title)||
+            (input.length>3&&title.replace(/[^a-z0-9]/g,'').includes(input.replace(/[^a-z0-9]/g,'')));
+  if(won){stopAudio();endGame(true);}
+  else{
+    guesses.push({text:val,sk:false});renderGuesses();stopAudio();
+    const clips=DIFFS[selDiff].clips;
+    if(clipIdx<clips.length-1){clipIdx++;updateClips();}
+    else endGame(false);
+    document.getElementById('ginput').value='';
+    document.getElementById('sdrop').style.display='none';
+  }
+}
+
+function endGame(won){
+  stopAudio();
+  if(won) playDing();
+  stats.p++;if(won){stats.c++;stats.s++;}else stats.s=0;
+  document.getElementById('sc').textContent=stats.c;
+  document.getElementById('ss').textContent=stats.s;
+  document.getElementById('sp').textContent=stats.p;
+  document.getElementById('game-area').style.display='none';
+  const attempts=guesses.length+(won?1:0);
+  const art=curSong.artworkUrl100||(curSong.artworkUrl60||'');
+  const bigArt=art.replace('100x100','300x300');
+
+  const ra=document.getElementById('result-area');
+  ra.style.display='block';
+  ra.innerHTML=`<div class="rcard">
+    ${bigArt?`<img class="album-art" src="${bigArt}" alt="Album art"/>`:''}
+    <div class="rsong">${curSong.trackName}</div>
+    <div class="rart">${curSong.artistName} &bull; ${curSong.collectionName||''}</div>
+    <div class="rbadges">
+      ${won?`<span class="rb rb-g">Got it in ${attempts} guess${attempts!==1?'es':''}</span>`:'<span class="rb rb-r">Missed this one</span>'}
+      <span class="rb rb-n">Clip: ${DIFFS[selDiff].clips[clipIdx]}s</span>
+      <span class="rb rb-n">${selDiff}</span>
+    </div>
+    <div class="ract">
+      <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">Open in iTunes</a>
+      <button class="bnext" onclick="nextSong()">Next song</button>
+    </div>
+  </div>`;
+}
+
+// ── Song picking ────────────────────────────────────────────────
+function filterByDiff(songs){
+  // Easy = top 25%, impossible = all
+  if(selDiff==='easy') return songs.slice(0, Math.max(20, Math.floor(songs.length*0.25)));
+  if(selDiff==='medium') return songs.slice(0, Math.max(40, Math.floor(songs.length*0.5)));
+  if(selDiff==='hard') return songs.slice(0, Math.max(60, Math.floor(songs.length*0.75)));
+  return songs; // expert / impossible = all
+}
+
+async function loadPool(){
+  setStatus('Loading songs...');
+  songPool = await fetchSongs(selGenre, selEra);
+  if(!songPool.length){
+    setStatus('No songs found — try another genre');
+    return false;
+  }
+  // Shuffle
+  for(let i=songPool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [songPool[i],songPool[j]]=[songPool[j],songPool[i]];
+  }
+  pickQueues={};
+  diffStates={};
+  setStatus('');
+  return true;
+}
+
+// Shuffle-bag song picker: works through every song in the current
+// filtered pool exactly once, in random order, before any repeats.
+// A separate bag is kept per genre+era+difficulty combo (in pickQueues),
+// so switching difficulty and back doesn't reset or collide with another
+// difficulty's progress through its own pool.
+function shuffledIndices(n){
+  const arr=Array.from({length:n},(_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pickSong(){
+  const filtered=filterByDiff(songPool);
+  if(!filtered.length) return songPool[Math.floor(Math.random()*songPool.length)];
+  const key=selGenre+'|'+selEra+'|'+selDiff+'|'+filtered.length;
+  let pq=pickQueues[key];
+  if(!pq){ pq={order:shuffledIndices(filtered.length),ptr:0,lastId:null}; pickQueues[key]=pq; }
+  if(pq.ptr>=pq.order.length){
+    pq.order=shuffledIndices(filtered.length);
+    pq.ptr=0;
+    // avoid an immediate repeat right at the reshuffle boundary
+    if(filtered.length>1 && pq.lastId!=null && filtered[pq.order[0]].trackId===pq.lastId){
+      [pq.order[0],pq.order[1]]=[pq.order[1],pq.order[0]];
+    }
+  }
+  const song=filtered[pq.order[pq.ptr]];
+  pq.ptr++;
+  pq.lastId=song.trackId;
+  return song;
+}
+
+// Save whatever is currently on screen (song, guesses, finished/result
+// state) as the saved round for the difficulty we're about to leave, so
+// switching back later restores it exactly instead of losing progress.
+function saveCurrentDiffState(){
+  if(!curSong) return;
+  const finished = document.getElementById('result-area').style.display!=='none';
+  diffStates[selDiff] = {
+    curSong, guesses:[...guesses], clipIdx, finished,
+    resultHTML: finished ? document.getElementById('result-area').innerHTML : null
+  };
+}
+
+// Restore a previously-saved round for a difficulty. Returns false if
+// that difficulty has no saved round yet (caller should start a fresh
+// song in that case).
+function restoreDiffState(d){
+  const st=diffStates[d];
+  if(!st) return false;
+  stopAudio();
+  curSong=st.curSong; guesses=[...st.guesses]; clipIdx=st.clipIdx;
+  audio=null;
+  buildWave();buildClips();updateClips();renderGuesses();buildSearch();
+  if(st.finished){
+    document.getElementById('game-area').style.display='none';
+    const ra=document.getElementById('result-area');
+    ra.style.display='block';
+    ra.innerHTML=st.resultHTML;
+  }else{
+    document.getElementById('game-area').style.display='block';
+    document.getElementById('result-area').style.display='none';
+    setStatus('Press play to start');
+  }
+  return true;
+}
+
+async function startGame(){
+  stopAudio();
+  if(!songPool.length){
+    const ok=await loadPool();
+    if(!ok)return;
+  }
+  curSong=pickSong();
+  audio=null; // reset audio object for new song
+  clipIdx=0;guesses=[];
+  buildWave();buildClips();updateClips();renderGuesses();buildSearch();
+  document.getElementById('game-area').style.display='block';
+  document.getElementById('result-area').style.display='none';
+  setStatus('Press play to start');
+}
+
+async function nextSong(){
+  if(!songPool.length) await loadPool();
+  startGame();
+}
+
+// Reroll: swap in a different song at the same difficulty/genre/era.
+// Doesn't touch score/streak/played — it's not a completed round, just
+// "give me another one".
+async function reroll(){
+  await startGame();
+}
+
+// Reroll All: same idea, but clears every difficulty's saved round so
+// each one deals a fresh song the next time you visit it, not just the
+// tab you're currently on.
+async function rerollAll(){
+  diffStates={};
+  await startGame();
+}
+
+function setDiff(d){
+  selDiff=d;
+  document.querySelectorAll('.diff-pill').forEach(b=>b.classList.toggle('active',b.dataset.d===d));
+  document.getElementById('diff-hint').textContent=DIFFS[d].hint;
+}
+
+// ── Events ──────────────────────────────────────────────────────
+document.getElementById('sel-genre').onchange=async e=>{
+  selGenre=e.target.value;songPool=[];await loadPool();startGame();
+};
+document.getElementById('sel-era').onchange=async e=>{
+  selEra=e.target.value;songPool=[];await loadPool();startGame();
+};
+document.getElementById('diff-row').onclick=e=>{
+  const p=e.target.closest('.diff-pill');
+  if(!p) return;
+  const newDiff=p.dataset.d;
+  if(newDiff===selDiff) return;
+  saveCurrentDiffState();
+  setDiff(newDiff);
+  if(!restoreDiffState(newDiff)){
+    startGame(); // haven't played this difficulty yet — deal a fresh song
+  }
+};
+document.querySelectorAll('.start-btn').forEach(b=>{
+  b.onclick=()=>{
+    const newOffset=parseInt(b.dataset.s);
+    if(newOffset===startOffset) return;
+    startOffset=newOffset;
+    document.querySelectorAll('.start-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    // Load a fresh song so players can't cheat by switching modes
+    songPool=[];
+    startGame();
+  };
+});
+document.getElementById('pbtn').onclick=playClip;
+document.getElementById('breroll').onclick=reroll;
+document.getElementById('brerollall').onclick=rerollAll;
+document.getElementById('bskip').onclick=skip;
+document.getElementById('bguess').onclick=doGuess;
+document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('sdrop');
+  if(dd&&!dd.contains(e.target)&&e.target!==document.getElementById('ginput'))dd.style.display='none';
+});
+
+// ── Init ─────────────────────────────────────────────────────────
+(async()=>{
+  setDiff('easy');
+  await loadPool();
+  startGame();
+})();
+</script>
+</body>
+</html>
