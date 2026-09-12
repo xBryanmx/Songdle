@@ -10,7 +10,7 @@
 :root{
   --bg:#080808;--surface:#111;--s2:#181818;--s3:#202020;
   --border:#252525;--b2:#303030;
-  --green:#1db954;--text:#f0f0f0;--t2:#999;--t3:#555;
+  --green:#d7263d;--green-h:#ff4d5e;--text:#f0f0f0;--t2:#999;--t3:#555;
   --red:#e74c3c;--yellow:#f39c12;--purple:#9b59b6;--orange:#e67e22;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
@@ -31,7 +31,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 /* Difficulty */
 .diff-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
 .diff-pill{flex:1;min-width:60px;padding:7px 4px;border-radius:20px;border:1px solid var(--b2);background:transparent;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;text-align:center;color:var(--t3)}
-.diff-pill[data-d="easy"].active{background:#1db95420;border-color:#1db95460;color:var(--green)}
+.diff-pill[data-d="easy"].active{background:#1db95420;border-color:#1db95460;color:#1db954}
 .diff-pill[data-d="medium"].active{background:#f39c1220;border-color:#f39c1260;color:var(--yellow)}
 .diff-pill[data-d="hard"].active{background:#e67e2220;border-color:#e67e2260;color:var(--orange)}
 .diff-pill[data-d="expert"].active{background:#e74c3c20;border-color:#e74c3c60;color:var(--red)}
@@ -43,21 +43,21 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .start-lbl{font-size:12px;color:var(--t3)}
 .start-btns{display:flex;gap:5px}
 .start-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
-.start-btn.active{background:var(--green);border-color:var(--green);color:#000;font-weight:600}
+.start-btn.active{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
 
 /* Player */
 .player{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
 .clip-row{display:flex;gap:5px;margin-bottom:16px}
 .cp{flex:1;padding:6px 0;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);font-size:11px;font-family:'Inter',sans-serif;cursor:default;transition:all .15s;text-align:center}
 .cp.on{color:var(--t2);cursor:pointer}
-.cp.cur{background:var(--green);border-color:var(--green);color:#000;font-weight:600}
+.cp.cur{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
 .cp.done{background:var(--s2);color:var(--t3)}
 .wf{display:flex;align-items:center;gap:2px;height:52px;margin-bottom:16px}
 .wb{flex:1;border-radius:2px;background:var(--s3);transition:background .04s}
-.wb.p{background:#1db95455}.wb.a{background:var(--green)}
+.wb.p{background:#d7263d55}.wb.a{background:var(--green)}
 .play-row{display:flex;align-items:center;gap:14px}
-.pbtn{width:52px;height:52px;border-radius:50%;background:var(--green);border:none;color:#000;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s}
-.pbtn:hover{background:#1ed760;transform:scale(1.04)}
+.pbtn{width:52px;height:52px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s}
+.pbtn:hover{background:var(--green-h);transform:scale(1.04)}
 .pbtn:active{transform:scale(.96)}
 .tinfo{display:flex;flex-direction:column;gap:2px}
 .tcur{font-size:20px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--green)}
@@ -83,10 +83,12 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .sdi-m{font-size:11px;color:var(--t3);margin-top:1px}
 
 .arow{display:flex;gap:8px}
+.brerl{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.brerl:hover{border-color:var(--green);color:var(--green)}
 .bskip{flex:1;padding:10px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
 .bskip:hover{border-color:var(--t3);color:var(--text)}
-.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
-.bguess:hover{background:#1ed760}
+.bguess{flex:2;padding:10px;background:var(--green);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+.bguess:hover{background:var(--green-h)}
 
 /* Result */
 .rcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
@@ -95,16 +97,33 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .rart{font-size:13px;color:var(--t2);margin-bottom:14px}
 .rbadges{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
 .rb{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid}
-.rb-g{background:#1db95415;border-color:#1db95445;color:var(--green)}
+.rb-g{background:#d7263d15;border-color:#d7263d45;color:var(--green)}
 .rb-r{background:#e74c3c15;border-color:#e74c3c45;color:var(--red)}
 .rb-n{background:var(--s2);border-color:var(--b2);color:var(--t2)}
 .ract{display:flex;gap:8px;justify-content:center}
 .byt{padding:9px 16px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:13px;text-decoration:none;font-family:'Inter',sans-serif;transition:all .15s}
 .byt:hover{border-color:var(--t3);color:var(--text)}
-.bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
-.bnext:hover{background:#1ed760}
+.bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+.bnext:hover{background:var(--green-h)}
 
 .no-song{text-align:center;padding:20px;color:var(--t3);font-size:13px}
+
+/* History */
+.hist-wrap{margin-bottom:14px}
+.hist-toggle{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;transition:all .15s}
+.hist-toggle:hover{border-color:var(--t3);color:var(--text)}
+.hist-panel{margin-top:8px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.hitem{display:flex;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.hi-art{width:38px;height:38px;border-radius:6px;object-fit:cover;background:var(--s2);flex-shrink:0}
+.hi-body{flex:1;min-width:0}
+.hi-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hi-song{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-badge{font-size:10px;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.hi-g{background:#d7263d20;color:var(--green)}
+.hi-r{background:#e74c3c20;color:var(--red)}
+.hi-artist{font-size:11px;color:var(--t3);margin-top:1px}
+.hi-wrong{font-size:11px;color:var(--red);margin-top:3px}
+.hi-skip{font-size:11px;color:var(--t3);margin-top:2px}
 </style>
 </head>
 <body>
@@ -117,6 +136,11 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <div class="hstat"><div class="hstat-n" id="sp">0</div><div class="hstat-l">played</div></div>
     </div>
   </header>
+
+  <div class="hist-wrap">
+    <button class="hist-toggle" id="hist-toggle">📜 History <span id="hist-count">(0)</span></button>
+    <div class="hist-panel" id="hist-panel" style="display:none"></div>
+  </div>
 
   <div class="filter-row">
     <select id="sel-genre">
@@ -190,6 +214,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <div class="sdrop" id="sdrop" style="display:none"></div>
     </div>
     <div class="arow">
+      <button class="brerl" id="breroll" title="Get a different song at this difficulty">🔀 Reroll</button>
       <button class="bskip" id="bskip">Skip</button>
       <button class="bguess" id="bguess">Guess</button>
     </div>
@@ -371,8 +396,10 @@ let selGenre='pop', selEra='', selDiff='easy', startOffset=0;
 let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
 let audio=null, waveAnim=null, tickTO=null, stopTO=null;
 let stats={c:0,s:0,p:0};
-let songPool=[], poolOffset=0;
+let songPool=[];
+let pickQueue={key:null,order:[],ptr:0};
 let searchCache={};
+let history=[];
 
 // ── Genre matching ─────────────────────────────────────────────
 // Use the per-genre keyword lists already defined on GENRE_CONFIG (they're
@@ -520,14 +547,20 @@ async function fetchSongs(genre, era){
   return allSongs;
 }
 
-async function searchForGuess(query){
+async function searchForGuess(query, isRetry){
   if(!query) return [];
   try {
     const url=`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&mediaType=music&limit=12&entity=song`;
     const res=await fetch(url);
     const data=await res.json();
     return (data.results||[]).filter(s=>s.trackName&&s.artistName);
-  } catch(e){ return []; }
+  } catch(e){
+    // iTunes search occasionally hiccups — retry once before giving up,
+    // since silently returning nothing is part of why the dropdown could
+    // seem to randomly not appear.
+    if(!isRetry) return searchForGuess(query, true);
+    return [];
+  }
 }
 
 // ── Audio ───────────────────────────────────────────────────────
@@ -540,6 +573,24 @@ function stopAudio(){
 }
 
 function setStatus(txt){ document.getElementById('status-txt').textContent=txt||''; }
+
+// ── Correct-answer ding ─────────────────────────────────────────
+let dingCtx=null;
+function playDing(){
+  try{
+    dingCtx = dingCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=dingCtx, now=ctx.currentTime;
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(1318.5, now+0.1);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.28, now+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now+0.4);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now+0.42);
+  }catch(e){}
+}
 
 async function playClip(){
   if(!curSong) return;
@@ -638,8 +689,34 @@ function renderGuesses(){
   });
 }
 
+// ── History (kept across every song this session) ──────────────
+function renderHistory(){
+  const countEl=document.getElementById('hist-count');
+  if(countEl) countEl.textContent='('+history.length+')';
+  const panel=document.getElementById('hist-panel');
+  if(!panel) return;
+  if(!history.length){panel.innerHTML='<div class="no-song">No rounds played yet</div>';return;}
+  panel.innerHTML=history.map(h=>{
+    const wrong=h.guesses.filter(g=>!g.sk).map(g=>g.text);
+    const skips=h.guesses.filter(g=>g.sk).length;
+    return `<div class="hitem">
+      ${h.art?`<img class="hi-art" src="${h.art}" alt=""/>`:'<div class="hi-art"></div>'}
+      <div class="hi-body">
+        <div class="hi-top">
+          <span class="hi-song">${h.song}</span>
+          <span class="hi-badge ${h.won?'hi-g':'hi-r'}">${h.won?'\u2713 Correct':'\u2717 Missed'}</span>
+        </div>
+        <div class="hi-artist">${h.artist} &bull; ${h.diff}</div>
+        ${wrong.length?`<div class="hi-wrong">Wrong: ${wrong.join(', ')}</div>`:''}
+        ${skips?`<div class="hi-skip">${skips} clip${skips!==1?'s':''} skipped</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ── Search (live iTunes) ────────────────────────────────────────
 let searchTO=null;
+let searchSeq=0;
 
 function buildSearch(){
   const inp=document.getElementById('ginput');
@@ -648,19 +725,26 @@ function buildSearch(){
   inp.oninput=()=>{
     clearTimeout(searchTO);
     const q=inp.value.trim();
-    // Require a few characters — a 1-2 letter query matches too broadly
+    // Require a couple characters — a single letter matches too broadly
     // (mostly irrelevant results) and risks surfacing the answer before
     // the player has actually typed enough to have found it themselves.
-    if(q.length<3){dd.style.display='none';return;}
-    // Debounce to avoid too many requests
+    if(q.length<2){dd.style.display='none';return;}
+    // Short debounce so results feel near-instant after each keystroke,
+    // while still not firing a request per single keypress on fast typers.
+    const mySeq=++searchSeq;
     searchTO=setTimeout(async()=>{
       const results=await searchForGuess(q);
+      // Ignore this response if a newer keystroke has already superseded
+      // it — without this, a slower response to an earlier letter could
+      // land after a faster one and show stale results, which is what
+      // made the dropdown feel like it was randomly bugging out.
+      if(mySeq!==searchSeq) return;
       // NOTE: we intentionally do NOT filter out the current song here.
       // If the player has typed enough of the real title/artist for it to
       // legitimately show up in results, that's them finding the answer
       // themselves — hiding it just leaves a list of only-wrong options.
       showDropdown(results.slice(0,9), dd);
-    }, 350);
+    }, 150);
   };
 }
 
@@ -708,6 +792,7 @@ function doGuess(){
 
 function endGame(won){
   stopAudio();
+  if(won) playDing();
   stats.p++;if(won){stats.c++;stats.s++;}else stats.s=0;
   document.getElementById('sc').textContent=stats.c;
   document.getElementById('ss').textContent=stats.s;
@@ -716,6 +801,13 @@ function endGame(won){
   const attempts=guesses.length+(won?1:0);
   const art=curSong.artworkUrl100||(curSong.artworkUrl60||'');
   const bigArt=art.replace('100x100','300x300');
+
+  history.unshift({
+    song:curSong.trackName, artist:curSong.artistName, art:curSong.artworkUrl60||art,
+    won:won, attempts:attempts, diff:selDiff, guesses:guesses.slice()
+  });
+  renderHistory();
+
   const ra=document.getElementById('result-area');
   ra.style.display='block';
   ra.innerHTML=`<div class="rcard">
@@ -755,16 +847,44 @@ async function loadPool(){
     const j=Math.floor(Math.random()*(i+1));
     [songPool[i],songPool[j]]=[songPool[j],songPool[i]];
   }
-  poolOffset=0;
+  pickQueue={key:null,order:[],ptr:0};
   setStatus('');
   return true;
+}
+
+// Shuffle-bag song picker: works through every song in the current
+// filtered pool exactly once, in random order, before any repeats —
+// this is what actually prevents early repeats (the old version cycled
+// sequentially through an offset that could drift out of sync whenever
+// the difficulty changed, causing songs to repeat sooner than expected).
+// A fresh bag is built per genre+era+difficulty combo, and reshuffled
+// (with a swap to dodge an immediate repeat) once it's exhausted.
+function shuffledIndices(n){
+  const arr=Array.from({length:n},(_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
 }
 
 function pickSong(){
   const filtered=filterByDiff(songPool);
   if(!filtered.length) return songPool[Math.floor(Math.random()*songPool.length)];
-  const song=filtered[poolOffset%filtered.length];
-  poolOffset++;
+  const key=selGenre+'|'+selEra+'|'+selDiff+'|'+filtered.length;
+  if(pickQueue.key!==key){
+    pickQueue={key, order:shuffledIndices(filtered.length), ptr:0};
+  }
+  if(pickQueue.ptr>=pickQueue.order.length){
+    pickQueue.order=shuffledIndices(filtered.length);
+    pickQueue.ptr=0;
+    // avoid an immediate repeat right at the reshuffle boundary
+    if(filtered.length>1 && curSong && filtered[pickQueue.order[0]].trackId===curSong.trackId){
+      [pickQueue.order[0],pickQueue.order[1]]=[pickQueue.order[1],pickQueue.order[0]];
+    }
+  }
+  const song=filtered[pickQueue.order[pickQueue.ptr]];
+  pickQueue.ptr++;
   return song;
 }
 
@@ -784,12 +904,15 @@ async function startGame(){
 }
 
 async function nextSong(){
-  // Reload pool occasionally to keep fresh
-  if(poolOffset>=songPool.length-1){
-    songPool=[];
-    await loadPool();
-  }
+  if(!songPool.length) await loadPool();
   startGame();
+}
+
+// Reroll: swap in a different song at the same difficulty/genre/era.
+// Doesn't touch score/streak/played or the history log — it's not a
+// completed round, just "give me another one".
+async function reroll(){
+  await startGame();
 }
 
 function setDiff(d){
@@ -822,8 +945,13 @@ document.querySelectorAll('.start-btn').forEach(b=>{
   };
 });
 document.getElementById('pbtn').onclick=playClip;
+document.getElementById('breroll').onclick=reroll;
 document.getElementById('bskip').onclick=skip;
 document.getElementById('bguess').onclick=doGuess;
+document.getElementById('hist-toggle').onclick=()=>{
+  const p=document.getElementById('hist-panel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+};
 document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
 document.addEventListener('click',e=>{
   const dd=document.getElementById('sdrop');
@@ -832,6 +960,7 @@ document.addEventListener('click',e=>{
 
 // ── Init ─────────────────────────────────────────────────────────
 (async()=>{
+  renderHistory();
   setDiff('easy');
   await loadPool();
   startGame();
