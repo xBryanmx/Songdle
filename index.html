@@ -25,6 +25,9 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 
 /* Filter row */
 .filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.excl-toggle{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--t2);cursor:pointer;user-select:none}
+.excl-toggle input{accent-color:var(--green);cursor:pointer}
+.excl-toggle:has(input:checked){border-color:var(--green);color:var(--green)}
 .filter-row select{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t2);padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer}
 .filter-row select:focus{outline:none;border-color:var(--green)}
 
@@ -63,6 +66,11 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .tcur{font-size:20px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--green)}
 .ttot{font-size:11px;color:var(--t3)}
 .status-txt{font-size:11px;color:var(--t3);margin-top:1px;min-height:14px}
+.vol-row{display:flex;align-items:center;gap:6px;margin-left:auto}
+.vol-ico{font-size:15px;color:var(--t2);flex-shrink:0}
+.vol-row input[type=range]{-webkit-appearance:none;appearance:none;width:80px;height:4px;border-radius:2px;background:var(--b2);outline:none;cursor:pointer}
+.vol-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:var(--green);cursor:pointer}
+.vol-row input[type=range]::-moz-range-thumb{width:13px;height:13px;border:none;border-radius:50%;background:var(--green);cursor:pointer}
 
 /* Guesses */
 .glist{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
@@ -100,7 +108,7 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .rb-g{background:#d7263d15;border-color:#d7263d45;color:var(--green)}
 .rb-r{background:#e74c3c15;border-color:#e74c3c45;color:var(--red)}
 .rb-n{background:var(--s2);border-color:var(--b2);color:var(--t2)}
-.ract{display:flex;gap:8px;justify-content:center}
+.ract{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .byt{padding:9px 16px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:13px;text-decoration:none;font-family:'Inter',sans-serif;transition:all .15s}
 .byt:hover{border-color:var(--t3);color:var(--text)}
 .bnext{padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
@@ -149,6 +157,11 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <option value="2020">2020s</option>
     </select>
   </div>
+  <div class="filter-row">
+    <label class="excl-toggle" id="excl-toggle" title="Filters out country/folk/blues/reggae no matter which genre is picked above">
+      <input type="checkbox" id="excl-roots"/> 🚫 No Country/Roots
+    </label>
+  </div>
 
   <!-- Difficulty -->
   <div class="diff-row" id="diff-row">
@@ -179,6 +192,10 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
         <div class="tcur" id="tcur">0.0s</div>
         <div class="ttot" id="ttot">of 0.1s</div>
         <div class="status-txt" id="status-txt">Loading...</div>
+      </div>
+      <div class="vol-row" title="Volume">
+        <span class="vol-ico">&#128266;</span>
+        <input type="range" id="volume" min="0" max="100" value="80"/>
       </div>
     </div>
   </div>
@@ -376,6 +393,8 @@ let curSong=null, clipIdx=0, guesses=[], isPlaying=false;
 let audio=null, waveAnim=null, tickTO=null, stopTO=null;
 let stats={c:0,s:0,p:0};
 let songPool=[];
+let volume=0.8;
+let exclRoots=false;
 let pickQueues={}; // key -> {order:[], ptr:0, lastId:null} — one shuffle bag per genre|era|diff combo
 let diffStates={}; // difficulty -> saved round {curSong, guesses, clipIdx, finished, resultHTML}
 let searchCache={};
@@ -472,53 +491,95 @@ async function fetchSongs(genre, era){
 
   let allSongs = [];
 
-  // Fetch using multiple search terms to maximise results (especially for era+genre combos)
-  const searchTerms = cfg.terms.slice(0, 3); // use up to 3 terms
-  const genreIds = cfg.ids.slice(0, 2); // use up to 2 genre IDs
+  // Use everything configured for this genre — previously these were
+  // truncated to a few terms/IDs even when a genre had more defined
+  // (e.g. Rock has 5 genre IDs and 6 terms but only 2/4 were ever used).
+  const searchTerms = cfg.terms;
+  const genreIds = cfg.ids;
+  const LIMIT = 200; // iTunes Search API's actual documented max (was 100)
 
   const fetches = [];
+  const searchUrl = (term, extra='') =>
+    fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&mediaType=music&limit=${LIMIT}&entity=song${extra}`)
+      .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[]);
 
-  for(const term of searchTerms){
-    const q = eraTerm ? `${eraTerm} ${term}` : term;
-    fetches.push(
-      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&limit=100&entity=song`)
-        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
-    );
-  }
-
-  // Also fetch by genreId if available
-  for(const gid of genreIds){
-    const q = eraTerm ? eraTerm : (searchTerms[0]||genre);
-    fetches.push(
-      fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&mediaType=music&genreId=${gid}&limit=100&entity=song`)
-        .then(r=>r.json()).then(d=>(d.results||[])).catch(()=>[])
-    );
+  if(era && ERA_RANGES[era]){
+    // iTunes search is relevance-based, not a real chart/decade browser —
+    // a single "2010s hip hop" query tends to keep surfacing the same
+    // handful of most "relevant" hits no matter how the phrase is varied.
+    // Querying each individual year spreads the results out and pulls in
+    // a much wider, less repetitive set of songs from across the decade.
+    const [startYear, endYear] = ERA_RANGES[era];
+    const yearTerms = searchTerms.slice(0, 2);
+    for(let y=startYear; y<=endYear; y++){
+      for(const term of yearTerms){
+        fetches.push(searchUrl(y+' '+term));
+      }
+    }
+    // Broader decade-phrase queries across every configured term
+    for(const term of searchTerms){
+      fetches.push(searchUrl(eraTerm+' '+term));
+    }
+    // genreId queries sampled across a few years in the decade, across
+    // every genre ID this category has (not just the first couple)
+    for(const gid of genreIds){
+      for(const y of [startYear, Math.floor((startYear+endYear)/2), endYear]){
+        fetches.push(searchUrl(String(y), `&genreId=${gid}`));
+      }
+    }
+  }else{
+    // No era filter — still spread a couple of terms across a sample of
+    // years spanning music history, the same trick used for a specific
+    // decade, so "Any era" doesn't lean entirely on a handful of the
+    // most generically "relevant" (usually current) hits either.
+    const sampleYears = [1965,1975,1985,1995,2005,2015,2023];
+    const yearTerms = searchTerms.slice(0, 2);
+    for(const y of sampleYears){
+      for(const term of yearTerms){
+        fetches.push(searchUrl(y+' '+term));
+      }
+    }
+    for(const term of searchTerms){
+      fetches.push(searchUrl(term));
+    }
+    for(const gid of genreIds){
+      const q = searchTerms[0]||genre;
+      fetches.push(searchUrl(q, `&genreId=${gid}`));
+    }
   }
 
   const results = await Promise.all(fetches);
 
-  // Merge, deduplicate by trackId, filter by genre AND era
-  const seen = new Set();
-  for(const batch of results){
-    for(const s of batch){
-      if(!s.previewUrl||!s.trackName||!s.artistName) continue;
-      if(seen.has(s.trackId)) continue;
-      seen.add(s.trackId);
-      if(genreMatches(s, genre) && songInEra(s, era)) allSongs.push(s);
+  // Merge + rank. Songs that turn up across more of our search queries,
+  // and rank higher (closer to the top) within them, are a reasonable
+  // proxy for "more well-known" — iTunes search puts more prominent/
+  // popular results first for a given query. This ordering is what
+  // filterByDiff() below relies on to make "Easy" mean "actually easy"
+  // rather than an arbitrary random slice of the pool.
+  function rankSongs(matchFn){
+    const meta = new Map(); // trackId -> {song, hits, bestIdx}
+    for(const batch of results){
+      batch.forEach((s, idx)=>{
+        if(!s.previewUrl||!s.trackName||!s.artistName) return;
+        if(!matchFn(s)) return;
+        const m = meta.get(s.trackId);
+        if(m){ m.hits++; if(idx<m.bestIdx) m.bestIdx=idx; }
+        else meta.set(s.trackId, {song:s, hits:1, bestIdx:idx});
+      });
     }
+    return Array.from(meta.values())
+      .sort((a,b)=>(b.hits-a.hits)||(a.bestIdx-b.bestIdx))
+      .map(m=>m.song);
   }
+
+  allSongs = rankSongs(s=>genreMatches(s, genre) && songInEra(s, era));
 
   // If strict filter left too few, relax genre but keep era strict
   if(allSongs.length < 10){
-    const seen2 = new Set(allSongs.map(s=>s.trackId));
-    for(const batch of results){
-      for(const s of batch){
-        if(!s.previewUrl||!s.trackName||!s.artistName) continue;
-        if(seen2.has(s.trackId)) continue;
-        if(!songInEra(s, era)) continue; // era is always strict
-        seen2.add(s.trackId);
-        allSongs.push(s);
-      }
+    const relaxed = rankSongs(s=>songInEra(s, era));
+    const seen = new Set(allSongs.map(s=>s.trackId));
+    for(const s of relaxed){
+      if(!seen.has(s.trackId)){ seen.add(s.trackId); allSongs.push(s); }
     }
   }
 
@@ -582,23 +643,41 @@ async function playClip(){
     audio.crossOrigin='anonymous';
     audio.dataset.src = curSong.previewUrl;
     audio.src = curSong.previewUrl;
+    audio.volume = volume;
+    audio.preload = 'auto';
     setStatus('Loading audio...');
     try { await audio.load(); } catch(e){}
   }
 
   setStatus('');
 
-  // Wait for audio to be ready enough to seek
-  await new Promise(resolve => {
-    if(audio.readyState >= 2){ resolve(); return; }
-    audio.addEventListener('canplay', resolve, {once:true});
+  // Wait for real metadata (a known duration) before seeking. Setting
+  // currentTime too early — before the browser actually knows the
+  // track's duration — can silently fail or get clamped in some
+  // browsers, which is what made "Beginning" occasionally not really
+  // land on the start of the clip.
+  await new Promise(resolve=>{
+    if(audio.readyState>=1 && !isNaN(audio.duration)){ resolve(); return; }
+    audio.addEventListener('loadedmetadata', resolve, {once:true});
     setTimeout(resolve, 3000); // fallback timeout
   });
 
-  // Seek to start offset — iTunes previews are 30s so cap at 10s for "30s in" mode
+  // Seek to start offset — iTunes previews are 30s so cap at 15s for "30s in" mode
   const maxSeek = Math.max(0, (audio.duration||30) - 15);
   const seekTo = Math.min(startOffset, maxSeek);
   audio.currentTime = seekTo;
+
+  // Wait for enough buffered data to actually play from that position,
+  // then double-check the seek actually landed — re-apply it if the
+  // browser drifted or ignored it, instead of just hoping for the best.
+  await new Promise(resolve=>{
+    if(audio.readyState>=2){ resolve(); return; }
+    audio.addEventListener('canplay', resolve, {once:true});
+    setTimeout(resolve, 3000);
+  });
+  if(Math.abs(audio.currentTime-seekTo) > 0.75){
+    audio.currentTime = seekTo;
+  }
 
   try { await audio.play(); } catch(e){ setStatus('Audio blocked — click again'); return; }
 
@@ -770,6 +849,7 @@ function endGame(won){
     <div class="ract">
       <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">Open in iTunes</a>
       <button class="bnext" onclick="nextSong()">Next song</button>
+      <button class="brerl" onclick="rerollAll()" title="Get a different song on every difficulty">🎲 Reroll All</button>
     </div>
   </div>`;
 }
@@ -783,17 +863,29 @@ function filterByDiff(songs){
   return songs; // expert / impossible = all
 }
 
+function isRootsGenre(song){
+  const kws = GENRE_CONFIG.roots.keywords;
+  const g = (song.primaryGenreName||'').toLowerCase();
+  return kws.some(k=>g.includes(k));
+}
+
 async function loadPool(){
   setStatus('Loading songs...');
-  songPool = await fetchSongs(selGenre, selEra);
+  let pool = await fetchSongs(selGenre, selEra);
+  if(exclRoots && selGenre!=='roots'){
+    pool = pool.filter(s=>!isRootsGenre(s));
+  }
+  // NOTE: intentionally NOT shuffling this array. It's already ordered
+  // most-to-least "well-known" (see rankSongs in fetchSongs), and
+  // filterByDiff() below slices from the front of it to build difficulty
+  // tiers. Shuffling here would scramble that ordering and make every
+  // difficulty an arbitrary random slice instead of an actual difficulty.
+  // Randomness in what order you actually get songs within a tier is
+  // handled separately, per-difficulty, by the shuffle bag in pickSong().
+  songPool = pool;
   if(!songPool.length){
     setStatus('No songs found — try another genre');
     return false;
-  }
-  // Shuffle
-  for(let i=songPool.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [songPool[i],songPool[j]]=[songPool[j],songPool[i]];
   }
   pickQueues={};
   diffStates={};
@@ -918,6 +1010,9 @@ document.getElementById('sel-genre').onchange=async e=>{
 document.getElementById('sel-era').onchange=async e=>{
   selEra=e.target.value;songPool=[];await loadPool();startGame();
 };
+document.getElementById('excl-roots').onchange=async e=>{
+  exclRoots=e.target.checked;songPool=[];await loadPool();startGame();
+};
 document.getElementById('diff-row').onclick=e=>{
   const p=e.target.closest('.diff-pill');
   if(!p) return;
@@ -942,6 +1037,10 @@ document.querySelectorAll('.start-btn').forEach(b=>{
   };
 });
 document.getElementById('pbtn').onclick=playClip;
+document.getElementById('volume').oninput=e=>{
+  volume=e.target.value/100;
+  if(audio) audio.volume=volume;
+};
 document.getElementById('breroll').onclick=reroll;
 document.getElementById('brerollall').onclick=rerollAll;
 document.getElementById('bskip').onclick=skip;
