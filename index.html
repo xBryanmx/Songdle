@@ -121,47 +121,16 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
   <div class="filter-row">
     <select id="sel-genre">
       <option value="all">🎵 All genres</option>
-      <optgroup label="── Popular ──">
-        <option value="pop">Pop</option>
-        <option value="hiphop">Hip-hop &amp; Rap</option>
-        <option value="rnb">R&amp;B &amp; Soul</option>
-      </optgroup>
-      <optgroup label="── Rock ──">
-        <option value="rock">Rock (all)</option>
-        <option value="alternative">Alternative &amp; Indie</option>
-        <option value="metal">Metal &amp; Hard Rock</option>
-        <option value="punk">Punk &amp; Emo</option>
-        <option value="grunge">Grunge</option>
-      </optgroup>
-      <optgroup label="── Electronic ──">
-        <option value="electronic">Electronic &amp; Dance (all)</option>
-        <option value="house">House &amp; Techno</option>
-        <option value="disco">Disco &amp; Funk</option>
-      </optgroup>
-      <optgroup label="── Roots ──">
-        <option value="country">Country &amp; Bluegrass</option>
-        <option value="folk">Folk &amp; Acoustic</option>
-        <option value="blues">Blues</option>
-        <option value="reggae">Reggae &amp; Dancehall</option>
-      </optgroup>
-      <optgroup label="── Jazz &amp; Classical ──">
-        <option value="jazz">Jazz</option>
-        <option value="classical">Classical &amp; Opera</option>
-      </optgroup>
-      <optgroup label="── Global ──">
-        <option value="afrobeats">Afrobeats</option>
-        <option value="world">World Music</option>
-      </optgroup>
-      <optgroup label="── International ──">
-        <option value="latin">Latin</option>
-        <option value="kpop">K-pop</option>
-        <option value="jpop">J-pop &amp; Anime</option>
-      </optgroup>
-      <optgroup label="── Other ──">
-        <option value="gospel">Gospel &amp; Christian</option>
-        <option value="soundtrack">Soundtrack &amp; Score</option>
-        <option value="ambient">Ambient &amp; New Age</option>
-      </optgroup>
+      <option value="popular">🎤 Popular</option>
+      <option value="rock">🎸 Rock</option>
+      <option value="electronic">🎛️ Electronic</option>
+      <option value="roots">🪕 Roots</option>
+      <option value="jazzclassical">🎷 Jazz &amp; Classical</option>
+      <option value="latin">🌴 Latin</option>
+      <option value="kpop">🇰🇷 K-pop</option>
+      <option value="jpop">🎌 J-pop &amp; Anime</option>
+      <option value="global">🌍 Global</option>
+      <option value="other">🎬 Soundtracks &amp; More</option>
     </select>
     <select id="sel-era">
       <option value="">Any era</option>
@@ -238,32 +207,17 @@ const DIFFS = {
 
 // Each genre group has: iTunes genre IDs, search terms, and keyword filters
 const GENRE_CONFIG = {
-  all:         { ids:[], terms:['top hits music','popular songs'], keywords:[] },
-  pop:         { ids:['14'], terms:['pop music','pop hits','pop songs'], keywords:['pop','dance pop','electropop','synth-pop'] },
-  hiphop:      { ids:['18'], terms:['hip hop rap','rap music','hip-hop','trap rap','drill rap'], keywords:['hip-hop','hip hop','rap','trap','drill','gangsta','conscious'] },
-  rnb:         { ids:['15'], terms:['rnb soul music','r&b soul','rhythm blues'], keywords:['r&b','soul','rhythm and blues','neo soul','motown','funk'] },
-  rock:        { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','rock band','rock hits'], keywords:['rock','classic rock','hard rock','soft rock','indie rock','punk rock','grunge','alternative'] },
-  alternative: { ids:['20'], terms:['alternative indie music','indie pop','indie rock','alt rock'], keywords:['alternative','indie','alt-rock','indie pop','indie rock','post-punk'] },
-  metal:       { ids:['1153'], terms:['heavy metal music','metal band','hard rock metal','thrash metal'], keywords:['metal','heavy metal','thrash','death metal','black metal','doom','hard rock'] },
-  punk:        { ids:['1223','1220'], terms:['punk rock music','emo music','punk band','pop punk','post-hardcore'], keywords:['punk','pop punk','emo','post-hardcore','screamo','hardcore','ska punk'] },
-  grunge:      { ids:['1222','20'], terms:['grunge music','90s grunge','alternative grunge'], keywords:['grunge','alternative','seattle sound'] },
-  electronic:  { ids:['7','1026'], terms:['electronic dance music','edm','electronic music','dance music','techno house'], keywords:['electronic','dance','electro','synth','techno','house','trance','club','edm'] },
-  house:       { ids:['1026'], terms:['house music','techno music','trance music','club music','deep house'], keywords:['house','techno','trance','club','deep house','chicago house','uk garage'] },
-  disco:       { ids:['17'], terms:['disco music','funk music','disco funk','70s disco'], keywords:['disco','funk','soul','boogie'] },
-  country:     { ids:['6'], terms:['country music','country songs','bluegrass music','country hits'], keywords:['country','bluegrass','country pop','country rock','honky tonk','outlaw'] },
-  folk:        { ids:['16'], terms:['folk music','acoustic music','singer songwriter','acoustic songs'], keywords:['folk','acoustic','singer-songwriter','folk rock','americana','bluegrass'] },
-  blues:       { ids:['2'], terms:['blues music','blues rock','soul blues','chicago blues'], keywords:['blues','delta blues','blues rock','rhythm and blues'] },
-  reggae:      { ids:['24'], terms:['reggae music','dancehall music','ska reggae','jamaican music'], keywords:['reggae','dancehall','ska','dub','roots reggae'] },
-  jazz:        { ids:['11'], terms:['jazz music','jazz songs','smooth jazz','bebop jazz'], keywords:['jazz','bebop','swing','smooth jazz','fusion','bossa nova'] },
-  classical:   { ids:['5'], terms:['classical music','orchestra symphony','opera music','piano classical'], keywords:['classical','orchestral','symphony','opera','chamber','baroque','romantic'] },
-  latin:       { ids:['12'], terms:['latin music','reggaeton','salsa music','latin pop','bachata'], keywords:['latin','reggaeton','salsa','bachata','cumbia','bossa nova','latin pop','flamenco'] },
-  kpop:        { ids:['51'], terms:['kpop music','korean pop','k-pop songs'], keywords:['k-pop','kpop','korean'] },
-  jpop:        { ids:['27'], terms:['jpop music','japanese pop','j-pop anime','anime music'], keywords:['j-pop','jpop','japanese','anime'] },
-  afrobeats:   { ids:['1286'], terms:['afrobeats music','afropop','afrobeat songs'], keywords:['afrobeats','afro','afropop'] },
-  world:       { ids:['19'], terms:['world music','celtic music','indian music','global music'], keywords:['world','celtic','indian','african','folk world'] },
-  gospel:      { ids:['22'], terms:['gospel music','christian music','worship music','ccm'], keywords:['gospel','christian','worship','ccm','spiritual','contemporary christian'] },
-  soundtrack:  { ids:['10'], terms:['movie soundtrack','film score','tv soundtrack','cinematic music'], keywords:['soundtrack','score','film','theme','cinematic','motion picture'] },
-  ambient:     { ids:['13'], terms:['ambient music','new age music','meditation music','chill music'], keywords:['ambient','new age','chill','meditation','drone','atmospheric'] },
+  all:          { ids:[], terms:['top hits music','popular songs','billboard hits'], keywords:[] },
+  popular:      { ids:['14','18','15'], terms:['pop music hits','hip hop rap','rnb soul hits','pop songs','rap music'], keywords:['pop','hip-hop','hip hop','rap','r&b','soul','trap','dance pop','urban'] },
+  rock:         { ids:['21','20','1153','1223','1222'], terms:['rock music','classic rock','alternative indie','heavy metal','punk rock','grunge','hard rock'], keywords:['rock','alternative','indie','metal','punk','grunge','hard rock','classic rock','emo','post-hardcore'] },
+  electronic:   { ids:['7','1026','17'], terms:['electronic dance music','house music','techno','edm dance','disco funk','synth pop'], keywords:['electronic','dance','house','techno','trance','edm','club','disco','funk','synth','electro'] },
+  roots:        { ids:['6','16','2','24'], terms:['country music','folk acoustic','blues music','reggae dancehall','bluegrass','americana'], keywords:['country','folk','blues','reggae','dancehall','ska','acoustic','bluegrass','americana','outlaw'] },
+  jazzclassical:{ ids:['11','5'], terms:['jazz music','classical orchestra','smooth jazz','symphony opera','bebop','piano classical'], keywords:['jazz','classical','orchestral','symphony','opera','bebop','swing','chamber','baroque'] },
+  latin:        { ids:['12'], terms:['latin music','reggaeton','salsa music','latin pop','bachata','cumbia'], keywords:['latin','reggaeton','salsa','bachata','cumbia','latin pop','bossa nova','flamenco','merengue'] },
+  kpop:         { ids:['51'], terms:['kpop music','korean pop','k-pop songs','korean music'], keywords:['k-pop','kpop','korean'] },
+  jpop:         { ids:['27'], terms:['jpop music','japanese pop','j-pop','anime music','anime songs'], keywords:['j-pop','jpop','japanese','anime'] },
+  global:       { ids:['19','1286'], terms:['afrobeats music','world music','celtic music','afropop','global music'], keywords:['afrobeats','afro','world','celtic','indian','african','global'] },
+  other:        { ids:['10','22','13'], terms:['movie soundtrack','gospel music','ambient music','film score','christian worship','new age'], keywords:['soundtrack','score','film','gospel','christian','worship','ambient','new age','cinematic'] },
 };
 
 // ── State ───────────────────────────────────────────────────────
