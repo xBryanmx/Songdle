@@ -107,23 +107,6 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .bnext:hover{background:var(--green-h)}
 
 .no-song{text-align:center;padding:20px;color:var(--t3);font-size:13px}
-
-/* History */
-.hist-wrap{margin-bottom:14px}
-.hist-toggle{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;transition:all .15s}
-.hist-toggle:hover{border-color:var(--t3);color:var(--text)}
-.hist-panel{margin-top:8px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-.hitem{display:flex;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
-.hi-art{width:38px;height:38px;border-radius:6px;object-fit:cover;background:var(--s2);flex-shrink:0}
-.hi-body{flex:1;min-width:0}
-.hi-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.hi-song{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hi-badge{font-size:10px;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.hi-g{background:#d7263d20;color:var(--green)}
-.hi-r{background:#e74c3c20;color:var(--red)}
-.hi-artist{font-size:11px;color:var(--t3);margin-top:1px}
-.hi-wrong{font-size:11px;color:var(--red);margin-top:3px}
-.hi-skip{font-size:11px;color:var(--t3);margin-top:2px}
 </style>
 </head>
 <body>
@@ -136,11 +119,6 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
       <div class="hstat"><div class="hstat-n" id="sp">0</div><div class="hstat-l">played</div></div>
     </div>
   </header>
-
-  <div class="hist-wrap">
-    <button class="hist-toggle" id="hist-toggle">📜 History <span id="hist-count">(0)</span></button>
-    <div class="hist-panel" id="hist-panel" style="display:none"></div>
-  </div>
 
   <div class="filter-row">
     <select id="sel-genre">
@@ -399,7 +377,6 @@ let stats={c:0,s:0,p:0};
 let songPool=[];
 let pickQueue={key:null,order:[],ptr:0};
 let searchCache={};
-let history=[];
 
 // ── Genre matching ─────────────────────────────────────────────
 // Use the per-genre keyword lists already defined on GENRE_CONFIG (they're
@@ -689,31 +666,6 @@ function renderGuesses(){
   });
 }
 
-// ── History (kept across every song this session) ──────────────
-function renderHistory(){
-  const countEl=document.getElementById('hist-count');
-  if(countEl) countEl.textContent='('+history.length+')';
-  const panel=document.getElementById('hist-panel');
-  if(!panel) return;
-  if(!history.length){panel.innerHTML='<div class="no-song">No rounds played yet</div>';return;}
-  panel.innerHTML=history.map(h=>{
-    const wrong=h.guesses.filter(g=>!g.sk).map(g=>g.text);
-    const skips=h.guesses.filter(g=>g.sk).length;
-    return `<div class="hitem">
-      ${h.art?`<img class="hi-art" src="${h.art}" alt=""/>`:'<div class="hi-art"></div>'}
-      <div class="hi-body">
-        <div class="hi-top">
-          <span class="hi-song">${h.song}</span>
-          <span class="hi-badge ${h.won?'hi-g':'hi-r'}">${h.won?'\u2713 Correct':'\u2717 Missed'}</span>
-        </div>
-        <div class="hi-artist">${h.artist} &bull; ${h.diff}</div>
-        ${wrong.length?`<div class="hi-wrong">Wrong: ${wrong.join(', ')}</div>`:''}
-        ${skips?`<div class="hi-skip">${skips} clip${skips!==1?'s':''} skipped</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
 // ── Search (live iTunes) ────────────────────────────────────────
 let searchTO=null;
 let searchSeq=0;
@@ -801,12 +753,6 @@ function endGame(won){
   const attempts=guesses.length+(won?1:0);
   const art=curSong.artworkUrl100||(curSong.artworkUrl60||'');
   const bigArt=art.replace('100x100','300x300');
-
-  history.unshift({
-    song:curSong.trackName, artist:curSong.artistName, art:curSong.artworkUrl60||art,
-    won:won, attempts:attempts, diff:selDiff, guesses:guesses.slice()
-  });
-  renderHistory();
 
   const ra=document.getElementById('result-area');
   ra.style.display='block';
@@ -909,8 +855,8 @@ async function nextSong(){
 }
 
 // Reroll: swap in a different song at the same difficulty/genre/era.
-// Doesn't touch score/streak/played or the history log — it's not a
-// completed round, just "give me another one".
+// Doesn't touch score/streak/played — it's not a completed round, just
+// "give me another one".
 async function reroll(){
   await startGame();
 }
@@ -919,7 +865,6 @@ function setDiff(d){
   selDiff=d;
   document.querySelectorAll('.diff-pill').forEach(b=>b.classList.toggle('active',b.dataset.d===d));
   document.getElementById('diff-hint').textContent=DIFFS[d].hint;
-  startGame();
 }
 
 // ── Events ──────────────────────────────────────────────────────
@@ -948,10 +893,6 @@ document.getElementById('pbtn').onclick=playClip;
 document.getElementById('breroll').onclick=reroll;
 document.getElementById('bskip').onclick=skip;
 document.getElementById('bguess').onclick=doGuess;
-document.getElementById('hist-toggle').onclick=()=>{
-  const p=document.getElementById('hist-panel');
-  p.style.display = p.style.display==='none' ? 'block' : 'none';
-};
 document.getElementById('ginput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
 document.addEventListener('click',e=>{
   const dd=document.getElementById('sdrop');
@@ -960,7 +901,6 @@ document.addEventListener('click',e=>{
 
 // ── Init ─────────────────────────────────────────────────────────
 (async()=>{
-  renderHistory();
   setDiff('easy');
   await loadPool();
   startGame();
