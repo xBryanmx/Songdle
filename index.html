@@ -310,24 +310,41 @@ async function fetchSongs(genre, era){
 
   const results = await Promise.all(fetches);
 
-  // Merge, deduplicate by trackId, filter
+  // Era year range
+  const eraRanges = {
+    '1950':[1950,1959],'1960':[1960,1969],'1970':[1970,1979],
+    '1980':[1980,1989],'1990':[1990,1999],'2000':[2000,2009],
+    '2010':[2010,2019],'2020':[2020,2029]
+  };
+  const yearRange = era ? eraRanges[era] : null;
+
+  function inEra(song){
+    if(!yearRange) return true;
+    const raw = song.releaseDate||'';
+    const year = parseInt(raw.substring(0,4));
+    if(isNaN(year)) return true; // can't tell, include it
+    return year >= yearRange[0] && year <= yearRange[1];
+  }
+
+  // Merge, deduplicate by trackId, filter by genre AND era
   const seen = new Set();
   for(const batch of results){
     for(const s of batch){
       if(!s.previewUrl||!s.trackName||!s.artistName) continue;
       if(seen.has(s.trackId)) continue;
       seen.add(s.trackId);
-      if(genreMatches(s, genre)) allSongs.push(s);
+      if(genreMatches(s, genre) && inEra(s)) allSongs.push(s);
     }
   }
 
-  // If strict genre filter left too few songs, relax and include all results
+  // If strict filter left too few, relax genre but keep era strict
   if(allSongs.length < 10){
     const seen2 = new Set(allSongs.map(s=>s.trackId));
     for(const batch of results){
       for(const s of batch){
         if(!s.previewUrl||!s.trackName||!s.artistName) continue;
         if(seen2.has(s.trackId)) continue;
+        if(!inEra(s)) continue; // era is always strict
         seen2.add(s.trackId);
         allSongs.push(s);
       }
