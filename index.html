@@ -650,7 +650,7 @@ async function playClip(){
   if(!curSong) return;
   if(isPlaying){stopAudio();return;}
 
-  const dur = DIFFS[selDiff].clips[clipIdx];
+  const dur = gameFinished ? 15 : DIFFS[selDiff].clips[clipIdx];
 
   if(!audio || audio.dataset.src !== curSong.previewUrl){
     audio = new Audio();
@@ -884,6 +884,16 @@ function endGame(won){
   document.getElementById('ss').textContent=stats.s;
   document.getElementById('sp').textContent=stats.p;
   document.getElementById('game-area').style.display='none';
+  // Mark game as finished so play button plays full 15s reveal
+  gameFinished = true;
+  // Update clip pills to show 15s as current
+  document.querySelectorAll('.cp').forEach((b,i)=>{
+    b.className='cp on'+(i===DIFFS[selDiff].clips.length-1?' cur':'');
+  });
+  document.getElementById('ttot').textContent='of 15s';
+  document.getElementById('tcur').textContent='0.0s';
+  // Auto-play the 15s reveal after a short delay so the result card renders first
+  setTimeout(()=>playClip(), 400);
   const attempts=guesses.length+(won?1:0);
   const art=curSong.artworkUrl100||(curSong.artworkUrl60||'');
   const bigArt=art.replace('100x100','300x300');
@@ -901,7 +911,6 @@ function endGame(won){
       <span class="rb rb-n">${selDiff}</span>
     </div>
     <div class="ract">
-      ${previewUrl ? `<button class="bplay" id="result-play-btn" onclick="toggleResultPlay(this,'${previewUrl.replace(/'/g,"\\'")}')">▶ Listen (15s)</button>` : ''}
       <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">iTunes</a>
       <button class="bnext" onclick="nextSong()">🔀 Reroll</button>
       <button class="brerl" onclick="rerollAll()" title="Get a different song on every difficulty">🎲 Reroll All</button>
@@ -1019,6 +1028,7 @@ function restoreDiffState(d){
 
 async function startGame(){
   stopAudio();
+  gameFinished=false;
   if(resultAudio){ resultAudio.pause(); resultAudio=null; }
   clearTimeout(resultPlayTO);
   if(!songPool.length){
