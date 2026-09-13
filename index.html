@@ -115,6 +115,9 @@ header{padding:24px 0 14px;display:flex;align-items:center;justify-content:space
 .bnext:hover{background:var(--green-h)}
 
 .no-song{text-align:center;padding:20px;color:var(--t3);font-size:13px}
+.bplay{padding:9px 16px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+.bplay:hover{border-color:var(--green);color:var(--green)}
+.bplay.playing{border-color:var(--green);color:var(--green);background:#d7263d18}
 </style>
 </head>
 <body>
@@ -587,18 +590,29 @@ async function fetchSongs(genre, era){
   return allSongs;
 }
 
-async function searchForGuess(query, isRetry){
+async function searchForGuess(query, attempt){
+  attempt = attempt||0;
   if(!query) return [];
   try {
     const url=`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&mediaType=music&limit=12&entity=song`;
     const res=await fetch(url);
+    // fetch() only rejects on a true network failure — an HTTP-level
+    // error (e.g. a 429 rate-limit after the burst of requests pool
+    // loading makes) still comes back as a normal, parseable response
+    // with no `results` field, which silently became "no results" with
+    // no exception ever thrown, and no retry. Checking res.ok explicitly
+    // fixes that: this is what made a correctly-spelled search seem to
+    // randomly show nothing.
+    if(!res.ok) throw new Error('iTunes search HTTP '+res.status);
     const data=await res.json();
     return (data.results||[]).filter(s=>s.trackName&&s.artistName);
   } catch(e){
-    // iTunes search occasionally hiccups — retry once before giving up,
-    // since silently returning nothing is part of why the dropdown could
-    // seem to randomly not appear.
-    if(!isRetry) return searchForGuess(query, true);
+    // Retry a couple of times with a short backoff — iTunes occasionally
+    // hiccups or briefly rate-limits after a burst of requests.
+    if(attempt<2){
+      await new Promise(r=>setTimeout(r, 300*(attempt+1)));
+      return searchForGuess(query, attempt+1);
+    }
     return [];
   }
 }
@@ -823,6 +837,45 @@ function doGuess(){
   }
 }
 
+// ── Result card listen button ──────────────────────────────────
+let resultAudio = null;
+let resultPlayTO = null;
+
+function toggleResultPlay(btn, url){
+  // If already playing this preview, pause it
+  if(resultAudio && !resultAudio.paused){
+    resultAudio.pause();
+    clearTimeout(resultPlayTO);
+    btn.textContent = '▶ Listen (15s)';
+    btn.classList.remove('playing');
+    return;
+  }
+  // Create or reuse audio
+  if(!resultAudio || resultAudio.dataset.src !== url){
+    if(resultAudio) resultAudio.pause();
+    resultAudio = new Audio(url);
+    resultAudio.dataset.src = url;
+    resultAudio.volume = volume;
+  }
+  resultAudio.currentTime = 0;
+  resultAudio.play().catch(()=>{});
+  btn.textContent = '⏸ Pause';
+  btn.classList.add('playing');
+  clearTimeout(resultPlayTO);
+  // Auto-stop after 15s
+  resultPlayTO = setTimeout(()=>{
+    if(resultAudio) resultAudio.pause();
+    btn.textContent = '▶ Listen again';
+    btn.classList.remove('playing');
+  }, 15000);
+  // Also listen for natural end
+  resultAudio.onended = ()=>{
+    btn.textContent = '▶ Listen again';
+    btn.classList.remove('playing');
+    clearTimeout(resultPlayTO);
+  };
+}
+
 function endGame(won){
   stopAudio();
   if(won) playDing();
@@ -837,6 +890,7 @@ function endGame(won){
 
   const ra=document.getElementById('result-area');
   ra.style.display='block';
+  const previewUrl = curSong.previewUrl||'';
   ra.innerHTML=`<div class="rcard">
     ${bigArt?`<img class="album-art" src="${bigArt}" alt="Album art"/>`:''}
     <div class="rsong">${curSong.trackName}</div>
@@ -847,8 +901,9 @@ function endGame(won){
       <span class="rb rb-n">${selDiff}</span>
     </div>
     <div class="ract">
-      <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">Open in iTunes</a>
-      <button class="bnext" onclick="nextSong()">Next song</button>
+      ${previewUrl ? `<button class="bplay" id="result-play-btn" onclick="toggleResultPlay(this,'${previewUrl.replace(/'/g,"\\'")}')">▶ Listen (15s)</button>` : ''}
+      <a class="byt" href="${curSong.trackViewUrl}" target="_blank" rel="noopener">iTunes</a>
+      <button class="bnext" onclick="nextSong()">🔀 Reroll</button>
       <button class="brerl" onclick="rerollAll()" title="Get a different song on every difficulty">🎲 Reroll All</button>
     </div>
   </div>`;
@@ -964,6 +1019,8 @@ function restoreDiffState(d){
 
 async function startGame(){
   stopAudio();
+  if(resultAudio){ resultAudio.pause(); resultAudio=null; }
+  clearTimeout(resultPlayTO);
   if(!songPool.length){
     const ok=await loadPool();
     if(!ok)return;
